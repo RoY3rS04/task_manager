@@ -1,14 +1,10 @@
 import express from 'express';
-import mysql from 'mysql2';
+import dotenv from 'dotenv';
 
 const app = express();
 const port = 3030;
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    database: 'task_manager'
-});
+dotenv.config();
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
@@ -16,12 +12,4 @@ app.listen(port, () => {
 
 app.get('/', (req, resp) => {
 
-    connection.query(
-        'SELECT * FROM users',
-        (err, results) => {
-            resp.json({
-                results
-            });
-        }
-    );
 })
