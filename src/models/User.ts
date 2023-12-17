@@ -15,22 +15,14 @@ export default class User {
         }
     }
 
-    public static async create(
-        name: string,
-        gmail: string,
-        password: string,
-        task_id: number|null = null,
-        updated_at: Date|null = null
-    ) {
-
-        const state = true;
-        const created_at = new Date();
+    public static async create({ name, gmail, task_id, password }: UserInfo) {
+        
         const hashed_pass = await bcrypt.hash(password, 10);
 
         try {
             const [rows, fields]  = await DBConnection.connection.execute<ResultSetHeader>(
-                `INSERT INTO users (name, gmail, password, task_id, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [name, gmail, hashed_pass, task_id, state, created_at, updated_at]
+                `INSERT INTO users (name, gmail, password, task_id) VALUES (?, ?, ?, ?)`,
+                [name, gmail, hashed_pass, task_id]
             );
 
             return this.getOne(rows.insertId);
@@ -73,7 +65,7 @@ export default class User {
         }
     }
 
-    public static async updateOne(id: number, data: UserInfo): Promise<UserResponse> {
+    public static async updateOne(id: number, data: Partial<UserInfo>): Promise<UserResponse> {
 
         try {
 

@@ -1,7 +1,8 @@
 export interface UserInfo {
-    name?: string,
-    gmail?: string,
-    password?: string,
+    name: string,
+    gmail: string,
+    password: string,
+    task_id: number|null
 }
 
 export interface Password {

@@ -15,12 +15,10 @@ class User {
             throw new Error('Something went wrong when trying to save the user');
         }
     }
-    static async create(name, gmail, password, task_id = null, updated_at = null) {
-        const state = true;
-        const created_at = new Date();
+    static async create({ name, gmail, task_id, password }) {
         const hashed_pass = await bcrypt_1.default.hash(password, 10);
         try {
-            const [rows, fields] = await config_js_1.default.connection.execute(`INSERT INTO users (name, gmail, password, task_id, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, [name, gmail, hashed_pass, task_id, state, created_at, updated_at]);
+            const [rows, fields] = await config_js_1.default.connection.execute(`INSERT INTO users (name, gmail, password, task_id) VALUES (?, ?, ?, ?)`, [name, gmail, hashed_pass, task_id]);
             return this.getOne(rows.insertId);
         }
         catch (error) {

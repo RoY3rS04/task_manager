@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import User from './src/models/User.js';
+import Task from './src/models/Task.js';
 
 const app = express();
 const port = 3030;
@@ -14,12 +15,11 @@ app.listen(port, () => {
 app.get('/', async (req, resp) => {
 
     try {
-        const result = await User.updateOne(6, {
-            password: 'elmeroshrek',
-        });
+        const result = await Task.deleteOne(1);
 
         resp.json(result);
     } catch (error) {
+        console.log(error);
         resp.json(error);
     }
 })
