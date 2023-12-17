@@ -11,20 +11,16 @@ class DBConnection {
         if (this.connection) {
             return this.connection;
         }
+        
+        this.connection = new Client({
+            host: process.env.PG_HOST,
+            user: process.env.PG_USER,
+            database: process.env.PG_NAME,
+            password: process.env.PG_PASSWORD,
+            port: Number(process.env.PG_PORT)
+        });
 
-        try {
-            this.connection = new Client({
-                host: process.env.DB_HOST,
-                user: process.env.DB_USER,
-                database: process.env.DB_NAME,
-                password: process.env.DB_PASSWORD,
-                port: Number(process.env.DB_PORT)
-            });
-
-            return this.connection;
-        } catch (error) {
-            console.log(error);
-        }
+        return this.connection;
     }
 }
 
