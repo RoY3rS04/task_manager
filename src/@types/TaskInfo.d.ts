@@ -1,3 +1,5 @@
+import { UserResponse } from "./UserInfo"
+
 export interface TaskInfo {
     title: string,
     description: string,
@@ -9,8 +11,9 @@ export interface TaskResponse {
     title: string,
     description: string,
     state: boolean,
-    created_by: number,
+    created_by: string,
     created_at: Date,
     updated_at: Date,
-    completed_at: Date
+    completed_at: Date,
+    users: string
 }

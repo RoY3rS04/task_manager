@@ -15,7 +15,9 @@ app.listen(port, () => {
 app.get('/', async (req, resp) => {
 
     try {
-        const result = await Task.deleteOne(1);
+        const result = await User.getAll();
+
+        console.log(result);
 
         resp.json(result);
     } catch (error) {

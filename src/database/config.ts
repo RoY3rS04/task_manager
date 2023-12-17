@@ -1,10 +1,10 @@
-import mysql from 'mysql2/promise';
+import { Client } from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 class DBConnection {
-    static connection: mysql.Connection;
+    static connection: Client;
 
     static async init() {
 
@@ -12,17 +12,22 @@ class DBConnection {
             return this.connection;
         }
 
-        this.connection = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            database: process.env.DB_NAME,
-            password: process.env.DB_PASSWORD
-        });
+        try {
+            this.connection = new Client({
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                database: process.env.DB_NAME,
+                password: process.env.DB_PASSWORD,
+                port: Number(process.env.DB_PORT)
+            });
 
-        return this.connection;
+            return this.connection;
+        } catch (error) {
+            console.log(error);
+        }
     }
 }
 
 DBConnection.init();
 
-export default DBConnection;
+export default DBConnection.connection;
