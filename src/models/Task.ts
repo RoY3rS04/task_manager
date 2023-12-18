@@ -1,4 +1,4 @@
-import { TaskInfo, TaskResponse } from "../@types/TaskInfo.js";
+import { TaskInfo, TaskResponse, TaskUsersResponse } from "../@types/TaskInfo.js";
 import connection from "../database/config.js";
 
 export default class Task {
@@ -135,7 +135,7 @@ export default class Task {
 
             const client = await connection.connect();
 
-            const res = await connection.query<TaskResponse>(
+            const res = await connection.query<TaskUsersResponse>(
                 `SELECT 
                     a.id,
                     a.title,
@@ -165,7 +165,7 @@ export default class Task {
                 INNER JOIN task_user c ON c.task_id = a.id
                 INNER JOIN users d ON c.user_id = d.id
                 WHERE a.id = $1
-                GROUP BY a.id, b.id, d.id`,
+                GROUP BY a.id, b.id`,
                 [taskId]
             );
 

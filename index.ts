@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import User from './src/models/User.js';
 import Task from './src/models/Task.js';
+import TeamWork from './src/models/TeamWork.js';
 
 const app = express();
 const port = 3030;
@@ -15,9 +16,11 @@ app.listen(port, () => {
 app.get('/', async (req, resp) => {
 
     try {
-        const result = await Task.getTaskUsers(1);
+        
+        const team = await TeamWork.deleteOne(2);
 
-        resp.json(result);
+        resp.json(team);
+
     } catch (error) {
         console.log(error);
         resp.json(error);

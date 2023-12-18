@@ -11,9 +11,13 @@ export interface TaskResponse {
     title: string,
     description: string,
     state: boolean,
-    created_by: UserResponse,
+    created_by: number,
     created_at: Date,
     updated_at: Date,
     completed_at: Date,
+}
+
+export interface TaskUsersResponse extends TaskResponse {
+    created_by: UserResponse,
     users: UserResponse[]
 }
