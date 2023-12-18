@@ -11,9 +11,9 @@ export interface TaskResponse {
     title: string,
     description: string,
     state: boolean,
-    created_by: string,
+    created_by: UserResponse,
     created_at: Date,
     updated_at: Date,
     completed_at: Date,
-    users: string
+    users: UserResponse[]
 }
