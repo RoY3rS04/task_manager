@@ -6,26 +6,40 @@ export default class User {
 
     private static async getPassword(userId: number) {
         try {
-            const res = await connection.query('SELECT password FROM users WHERE id = ?', [userId]);
+
+            const client = await connection.connect();
+
+            const res = await connection.query<Password>('SELECT password FROM users WHERE id = $1', [userId]);
             
-            return res;
+            client.release();
+
+            return res.rows[0];
         } catch (error) {
-            throw new Error('Something went wrong when trying to save the user');
+            console.log(error);
+            throw new Error('Something went wrong when trying to get the password');
         }
     }
 
     public static async create({ name, gmail, password }: UserInfo) {
-        
-        const hashed_pass = await bcrypt.hash(password, 10);
 
         try {
-            const res  = await connection.query(
-                `INSERT INTO users (name, gmail, password) VALUES ($1, $2, $3)`,
+            const [hashed_pass, client] = await Promise.all(
+                [
+                    bcrypt.hash(password, 10),
+                    connection.connect()
+                ]
+            );
+
+            const res  = await connection.query<Pick<UserResponse, 'id'>>(
+                `INSERT INTO users (name, gmail, password) VALUES ($1, $2, $3) RETURNING id`,
                 [name, gmail, hashed_pass]
             );
 
-            //return this.getOne(rows.insertId);
+            client.release();
+
+            return await this.getOne(res.rows[0].id);
         } catch (error) {
+            console.log(error);
             throw new Error('Something went wrong when trying to save the user');
         }
     }
@@ -33,34 +47,44 @@ export default class User {
     public static async getOne(id: number) {
 
         try {
-            const res = await connection.query('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE id = $1',
+
+            const client = await connection.connect();
+
+            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE id = $1',
                 [id]);
             
-            return res;
+            client.release();
+            
+            return res.rows[0];
         } catch (error) {
-            throw new Error('Something went wrong when trying to save the user');
+            console.log(error);
+            throw new Error('Something went wrong when trying to get the user');
         }
     }
 
     public static async getAll() {
 
         try {
-            connection.connect();
+            const client = await connection.connect();
 
-            const res = await connection.query('SELECT id, name, gmail, state, created_at, updated_at FROM users');
+            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users');
             
-            connection.end();
+            client.release();
 
-            return res;
+            return res.rows;
         } catch (error) {
-            console.log(error);
+            throw new Error('Something went wrong');
         }
     }
 
     public static async deleteOne(id: number) {
 
         try {
-            const res = await connection.query('UPDATE users SET state = false WHERE id = ?', [id]);
+            const client = await connection.connect();
+
+            const res = await connection.query('UPDATE users SET state = false WHERE id = $1', [id]);
+
+            client.release();
 
             return await this.getOne(id);
         } catch (error) {
@@ -72,22 +96,25 @@ export default class User {
 
         try {
 
-            /* const [user, {password}] = await Promise.all([
+            const [user, {password}, client] = await Promise.all([
                 this.getOne(id),
-                this.getPassword(id)
-            ]); */
-            
+                this.getPassword(id),
+                connection.connect()
+            ]);
 
-            /* const res = await connection.query('UPDATE users SET name = ?, gmail = ?, password = ? WHERE id = ?', [
+            const res = await connection.query('UPDATE users SET name = $1, gmail = $2, password = $3 WHERE id = $4', [
                 data.name ?? user.name,
                 data.gmail ?? user.gmail,
-                data.password ? await bcrypt.hash(data.password, 10) : password,
+                data.password?.trim() ? await bcrypt.hash(data.password, 10) : password,
                 id
-            ]); */
+            ]);
+
+            client.release();
 
             return await this.getOne(id);
         } catch (error) {
-            throw new Error('Something went wrong when trying to save the user');
+            console.log(error);
+            throw new Error('Something went wrong when trying to update the user');
         }
     }
 }
