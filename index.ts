@@ -10,6 +10,8 @@ const port = 3030;
 
 dotenv.config();
 
+app.use(express.json());
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
 })

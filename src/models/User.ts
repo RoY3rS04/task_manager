@@ -25,7 +25,7 @@ export default class User {
         try {
             const [hashed_pass, client] = await Promise.all(
                 [
-                    bcrypt.hash(password, 10),
+                    bcrypt.hash(password.trim(), 10),
                     connection.connect()
                 ]
             );
@@ -44,14 +44,14 @@ export default class User {
         }
     }
 
-    public static async getOne(id: number) {
+    public static async getOne(id: number, includeDeleted: boolean = false) {
 
         try {
 
             const client = await connection.connect();
 
-            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE id = $1 AND state = true',
-                [id]);
+            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE id = $1 AND state = $2',
+                [id, !includeDeleted]);
             
             client.release();
             
@@ -86,7 +86,7 @@ export default class User {
 
             client.release();
 
-            return await this.getOne(id);
+            return await this.getOne(id, true);
         } catch (error) {
             throw new Error('Something went wrong when trying to remove the user');
         }
@@ -105,7 +105,7 @@ export default class User {
             const res = await connection.query('UPDATE users SET name = $1, gmail = $2, password = $3 WHERE id = $4 AND state = true', [
                 data.name ?? user.name,
                 data.gmail ?? user.gmail,
-                data.password?.trim() ? await bcrypt.hash(data.password, 10) : password,
+                data.password?.trim() ? await bcrypt.hash(data.password.trim(), 10) : password,
                 id
             ]);
 
