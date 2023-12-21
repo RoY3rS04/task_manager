@@ -23,15 +23,15 @@ export default class Task {
         
     }
 
-    public static async getOne(id: number) {
+    public static async getOne(id: number, allowDeleted: boolean = false) {
 
         try {
 
             const client = await connection.connect();
 
             const res = await connection.query<TaskResponse>(
-                'SELECT * FROM tasks WHERE id = $1 AND state = true',
-                [id]
+                'SELECT * FROM tasks WHERE id = $1 AND state = $2',
+                [id, !allowDeleted]
             );
 
             client.release();
@@ -75,7 +75,7 @@ export default class Task {
 
             client.release();
 
-            return await this.getOne(id);
+            return await this.getOne(id, true);
         } catch (error) {
             throw new Error('Something went wrong');
         }

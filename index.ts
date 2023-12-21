@@ -1,9 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import User from './src/models/User.js';
-import Task from './src/models/Task.js';
-import TeamWork from './src/models/TeamWork.js';
 import userRoutes from './src/routes/userRoutes.js';
+import taskRoutes from './src/routes/taskRoutes.js';
 
 const app = express();
 const port = 3030;
@@ -16,21 +14,5 @@ app.listen(port, () => {
     console.log(`Listening on port ${port}`)
 })
 
-app.get('/', async (req, resp) => {
-
-    try {
-        
-        const team = await TeamWork.create({
-            name: 'Los meros',
-            created_by: 10
-        });
-
-        resp.json(team);
-
-    } catch (error) {
-        console.log(error);
-        resp.json(error);
-    }
-})
-
 app.use('/users', userRoutes);
+app.use('/tasks', taskRoutes);

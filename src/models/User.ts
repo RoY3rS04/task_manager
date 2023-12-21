@@ -44,14 +44,14 @@ export default class User {
         }
     }
 
-    public static async getOne(id: number, includeDeleted: boolean = false) {
+    public static async getOne(id: number, allowDeleted: boolean = false) {
 
         try {
 
             const client = await connection.connect();
 
             const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE id = $1 AND state = $2',
-                [id, !includeDeleted]);
+                [id, !allowDeleted]);
             
             client.release();
             
