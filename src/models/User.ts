@@ -88,7 +88,7 @@ export default class User {
 
             return await this.getOne(id);
         } catch (error) {
-            throw new Error('Something went wrong when trying to save the user');
+            throw new Error('Something went wrong when trying to remove the user');
         }
     }
 

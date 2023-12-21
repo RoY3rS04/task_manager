@@ -148,7 +148,7 @@ export default class TeamWork {
 
         } catch (error) {
             console.log(error);
-            throw new Error('Something went wrong when joining user to team');
+            throw new Error('Something went wrong when removing user to team');
         }
 
     }

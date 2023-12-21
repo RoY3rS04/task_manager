@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import User from './src/models/User.js';
 import Task from './src/models/Task.js';
 import TeamWork from './src/models/TeamWork.js';
+import userRoutes from './src/routes/userRoutes.js';
 
 const app = express();
 const port = 3030;
@@ -29,3 +30,5 @@ app.get('/', async (req, resp) => {
         resp.json(error);
     }
 })
+
+app.use('/users', userRoutes);

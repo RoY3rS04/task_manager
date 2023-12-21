@@ -125,6 +125,7 @@ export default class Task {
             return res;
         } catch (error) {
             console.log(error);
+            throw new Error('Could\'nt assign user to task');
         }
 
     }
@@ -145,6 +146,7 @@ export default class Task {
             return res;
         } catch (error) {
             console.log(error);
+            throw new Error('Could\'nt remove user from task');
         }
 
     }
