@@ -17,7 +17,10 @@ app.get('/', async (req, resp) => {
 
     try {
         
-        const team = await TeamWork.deleteOne(2);
+        const team = await TeamWork.create({
+            name: 'Los meros',
+            created_by: 10
+        });
 
         resp.json(team);
 

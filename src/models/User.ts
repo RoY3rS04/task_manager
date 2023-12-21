@@ -50,7 +50,7 @@ export default class User {
 
             const client = await connection.connect();
 
-            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE id = $1',
+            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE id = $1 AND state = true',
                 [id]);
             
             client.release();
@@ -67,7 +67,7 @@ export default class User {
         try {
             const client = await connection.connect();
 
-            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users');
+            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE state = true');
             
             client.release();
 
@@ -102,7 +102,7 @@ export default class User {
                 connection.connect()
             ]);
 
-            const res = await connection.query('UPDATE users SET name = $1, gmail = $2, password = $3 WHERE id = $4', [
+            const res = await connection.query('UPDATE users SET name = $1, gmail = $2, password = $3 WHERE id = $4 AND state = true', [
                 data.name ?? user.name,
                 data.gmail ?? user.gmail,
                 data.password?.trim() ? await bcrypt.hash(data.password, 10) : password,

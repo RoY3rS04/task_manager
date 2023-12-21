@@ -30,7 +30,7 @@ export default class Task {
             const client = await connection.connect();
 
             const res = await connection.query<TaskResponse>(
-                'SELECT * FROM tasks WHERE id = $1',
+                'SELECT * FROM tasks WHERE id = $1 AND state = true',
                 [id]
             );
 
@@ -50,7 +50,7 @@ export default class Task {
             const client = await connection.connect();
 
             const res = await connection.query<TaskResponse>(
-                'SELECT * FROM tasks'
+                'SELECT * FROM tasks WHERE state = true'
             );
 
             client.release();
@@ -91,7 +91,7 @@ export default class Task {
             const client = await connection.connect();
 
             const res = await connection.query(
-                'UPDATE tasks SET title = $1, description = $2, updated_at = $3 WHERE id = $4',
+                'UPDATE tasks SET title = $1, description = $2, updated_at = $3 WHERE id = $4 AND state = true',
                 [
                     data.title ?? task.title,
                     data.description ?? task.description,
@@ -117,6 +117,26 @@ export default class Task {
 
             const res = await connection.query(
                 'INSERT INTO task_user (task_id, user_id) VALUES ($1, $2)',
+                [taskId, userId]
+            )
+
+            client.release();
+
+            return res;
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    public static async removeUser(taskId: number, userId: number) {
+
+        try {
+
+            const client = await connection.connect();
+
+            const res = await connection.query(
+                'DELETE FROM task_user WHERE task_id = $1 AND user_id = $2',
                 [taskId, userId]
             )
 
@@ -164,7 +184,7 @@ export default class Task {
                 INNER JOIN users b ON a.created_by = b.id
                 INNER JOIN task_user c ON c.task_id = a.id
                 INNER JOIN users d ON c.user_id = d.id
-                WHERE a.id = $1
+                WHERE a.id = $1 AND a.state = true
                 GROUP BY a.id, b.id`,
                 [taskId]
             );
