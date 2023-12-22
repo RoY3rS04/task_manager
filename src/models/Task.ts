@@ -77,6 +77,7 @@ export default class Task {
 
             return await this.getOne(id, true);
         } catch (error) {
+            console.log(error);
             throw new Error('Something went wrong');
         }
         

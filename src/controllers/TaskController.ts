@@ -1,14 +1,21 @@
 import { Request, Response } from "express";
 import Task from "../models/Task.js";
-import { TaskInfo } from "../@types/TaskInfo.js";
+import { TaskInfo, TaskResponse, TaskUsersResponse } from "../@types/TaskInfo.js";
 
 const getTask = async (req: Request, res: Response) => {
 
     const { id } = req.params;
+    const { with_users } = req.body;
 
     try {
         
-        const task = await Task.getOne(Number(id));
+        let task: TaskResponse | TaskUsersResponse;
+        
+        if (with_users) {
+            task = await Task.getTaskUsers(Number(id));
+        } else {
+            task = await Task.getOne(Number(id));
+        }
 
         res.json({
             ok: true,
@@ -155,10 +162,71 @@ const deleteTask = async (req: Request, res: Response) => {
 
 }
 
+const assignUser = async (req: Request, res: Response) => {
+
+    const { task_id, user_id } = req.body;
+
+    try {
+        
+        await Task.assignUser(task_id, user_id);
+
+        res.json({
+            ok: true,
+            msg: 'User assigned to task correctly'
+        })
+
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.json({
+                ok: false,
+                msg: error.message
+            })
+        } 
+
+        res.json({
+            ok: false,
+            msg: String(error)
+        })
+    }
+
+}
+
+const removeUser = async (req: Request, res: Response) => {
+
+    const { taskId, userId } = req.params;
+
+    try {
+        
+        await Task.removeUser(Number(taskId), Number(userId));
+
+        res.json({
+            ok: true,
+            msg: 'User removed successfully from task'
+        })
+
+    } catch (error) {
+        console.log(error);
+        if (error instanceof Error) {
+            return res.json({
+                ok: false,
+                msg: error
+            })
+        } 
+
+        res.json({
+            ok: false,
+            msg: String(error)
+        })
+    }
+
+}
+
 export {
     getTask,
     getTasks,
     createTask,
     updateTask,
-    deleteTask
+    deleteTask,
+    assignUser,
+    removeUser
 }

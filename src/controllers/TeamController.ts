@@ -1,14 +1,22 @@
 import { Request, Response } from "express";
 import TeamWork from "../models/TeamWork.js";
+import { TeamResponse, TeamUsersResponse } from "../@types/TeamInfo.js";
 
 const getTeam = async (req: Request, res: Response) => {
 
     const { id } = req.params;
+    const { with_users } = req.body;
 
     try {
 
-        const team = await TeamWork.getOne(Number(id));
-
+        let team: TeamResponse | TeamUsersResponse;
+        
+        if (with_users) {
+            team = await TeamWork.getTeamUsers(Number(id));
+        } else {
+            team = await TeamWork.getOne(Number(id));
+        }
+ 
         res.json({
             ok: true,
             team
@@ -150,10 +158,71 @@ const deleteTeam = async (req: Request, res: Response) => {
 
 }
 
+const joinUser = async (req: Request, res: Response) => {
+
+    const { team_id, user_id } = req.body;
+
+    try {
+        
+        await TeamWork.joinUser(team_id, user_id);
+
+        res.json({
+            ok: true,
+            msg: 'User joined to team correctly'
+        })
+
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.json({
+                ok: false,
+                msg: error.message
+            })
+        } 
+
+        res.json({
+            ok: false,
+            msg: String(error)
+        })
+    }
+
+}
+
+const removeUser = async (req: Request, res: Response) => {
+
+    const { teamId, userId } = req.params;
+
+    try {
+        
+        await TeamWork.removeUser(Number(teamId), Number(userId));
+
+        res.json({
+            ok: true,
+            msg: 'User removed successfully from team'
+        })
+
+    } catch (error) {
+        console.log(error);
+        if (error instanceof Error) {
+            return res.json({
+                ok: false,
+                msg: error
+            })
+        } 
+
+        res.json({
+            ok: false,
+            msg: String(error)
+        })
+    }
+
+}
+
 export {
     getTeam,
     getTeams,
     createTeam,
     updateTeam,
-    deleteTeam
+    deleteTeam,
+    joinUser,
+    removeUser
 }
