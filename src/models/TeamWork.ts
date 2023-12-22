@@ -9,7 +9,7 @@ export default class TeamWork {
             
             const client = await connection.connect();
 
-            const res = await connection.query<Pick<TeamResponse, 'id'>>('INSERT INTO team_works (name, created_by) VALUES ($1, $2) RETURNING id',
+            const res = await connection.query<Pick<TeamResponse, 'id'>>('INSERT INTO teams (name, created_by) VALUES ($1, $2) RETURNING id',
                 [name, created_by]
             );
 
@@ -35,7 +35,7 @@ export default class TeamWork {
             const client = await connection.connect();
 
             const res = await connection.query<TeamResponse>(
-                'SELECT * FROM team_works WHERE id = $1 AND state = true',
+                'SELECT * FROM teams WHERE id = $1 AND state = true',
                 [id]
             )
 
@@ -56,7 +56,7 @@ export default class TeamWork {
             const client = await connection.connect();
 
             const res = await connection.query<TeamResponse>(
-                'SELECT * FROM team_works WHERE state = true'
+                'SELECT * FROM teams WHERE state = true'
             )
 
             client.release();
@@ -76,7 +76,7 @@ export default class TeamWork {
             const client = await connection.connect();
 
             const res = await connection.query(
-                'UPDATE team_works SET name = $1, updated_at = $2 WHERE id = $3 AND state = true',
+                'UPDATE teams SET name = $1, updated_at = $2 WHERE id = $3 AND state = true',
                 [name, new Date(), id]
             );
 
@@ -97,7 +97,7 @@ export default class TeamWork {
             const client = await connection.connect();
 
             const res = await connection.query(
-                'UPDATE team_works SET state = false WHERE id = $1',
+                'UPDATE teams SET state = false WHERE id = $1',
                 [id]
             )
 
@@ -117,7 +117,7 @@ export default class TeamWork {
             const client = await connection.connect();
 
             const res = await connection.query(
-                'INSERT INTO team_user (team_id, user_id) VALUES ($1, $2) RETURNING id',
+                'INSERT INTO user_team (team_id, user_id) VALUES ($1, $2) RETURNING id',
                 [teamId, userId]
             );
 
@@ -138,7 +138,7 @@ export default class TeamWork {
             const client = await connection.connect();
 
             const res = await connection.query(
-                'DELETE FROM team_user WHERE team_id = $1 AND user_id = $2',
+                'DELETE FROM user_team WHERE team_id = $1 AND user_id = $2',
                 [teamId, userId]
             );
 
@@ -182,9 +182,9 @@ export default class TeamWork {
                         'created_at', d.created_at,
                         'updated_at', d.updated_at
                     )) as users
-                FROM team_works a 
+                FROM teams a 
                 INNER JOIN users b ON a.created_by = b.id
-                INNER JOIN team_user c ON c.team_id = a.id
+                INNER JOIN user_team c ON c.team_id = a.id
                 INNER JOIN users d ON c.user_id = d.id
                 WHERE a.id = $1 AND a.state = true
                 GROUP BY a.id, b.id`,

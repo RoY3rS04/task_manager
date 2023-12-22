@@ -116,7 +116,7 @@ export default class Task {
             const client = await connection.connect();
 
             const res = await connection.query(
-                'INSERT INTO task_user (task_id, user_id) VALUES ($1, $2)',
+                'INSERT INTO user_task (task_id, user_id) VALUES ($1, $2)',
                 [taskId, userId]
             )
 
@@ -137,7 +137,7 @@ export default class Task {
             const client = await connection.connect();
 
             const res = await connection.query(
-                'DELETE FROM task_user WHERE task_id = $1 AND user_id = $2',
+                'DELETE FROM user_task WHERE task_id = $1 AND user_id = $2',
                 [taskId, userId]
             )
 
@@ -184,7 +184,7 @@ export default class Task {
                     )) as users
                 FROM tasks a 
                 INNER JOIN users b ON a.created_by = b.id
-                INNER JOIN task_user c ON c.task_id = a.id
+                INNER JOIN user_task c ON c.task_id = a.id
                 INNER JOIN users d ON c.user_id = d.id
                 WHERE a.id = $1 AND a.state = true
                 GROUP BY a.id, b.id`,

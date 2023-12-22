@@ -73,6 +73,7 @@ export default class User {
 
             return res.rows;
         } catch (error) {
+            console.log(error);
             throw new Error('Something went wrong');
         }
     }
