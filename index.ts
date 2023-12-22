@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import userRoutes from './src/routes/userRoutes.js';
 import taskRoutes from './src/routes/taskRoutes.js';
 import teamRoutes from './src/routes/teamRoutes.js';
+import authRoutes from './src/routes/authRoutes.js';
 
 const app = express();
 const port = 3030;
@@ -18,3 +19,4 @@ app.listen(port, () => {
 app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/teams', teamRoutes);
+app.use('/users/auth', authRoutes);

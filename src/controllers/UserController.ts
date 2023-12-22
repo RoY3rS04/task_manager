@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/User.js";
+import { UserResponse } from "../@types/UserInfo.js";
 
 const getUsers = async (req: Request, res: Response) => {
     
@@ -93,7 +94,7 @@ const createUser = async (req: Request, res: Response) => {
 
 const updateUser = async (req: Request, res: Response) => {
 
-    const { id } = req.params;
+    const { id } = <UserResponse>req.user;
     const { name, gmail, password } = req.body;
 
     try {
@@ -113,7 +114,7 @@ const updateUser = async (req: Request, res: Response) => {
         if (error instanceof Error) {
             return res.json({
                 ok: false,
-                msg: error.message
+                msg: error
             })
         } 
 

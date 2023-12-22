@@ -205,7 +205,6 @@ const removeUser = async (req: Request, res: Response) => {
         })
 
     } catch (error) {
-        console.log(error);
         if (error instanceof Error) {
             return res.json({
                 ok: false,

@@ -44,14 +44,22 @@ export default class User {
         }
     }
 
-    public static async getOne(id: number, allowDeleted: boolean = false) {
+    public static async getOne(idOrGmail: number|string, allowDeleted: boolean = false): Promise<UserResponse | undefined> {
 
         try {
 
             const client = await connection.connect();
 
-            const res = await connection.query<UserResponse>('SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE id = $1 AND state = $2',
-                [id, !allowDeleted]);
+            let searchingBy: string;
+
+            if (typeof idOrGmail === 'number') {
+                searchingBy = 'id';
+            } else {
+                searchingBy = 'gmail';
+            }
+
+            const res = await connection.query<UserResponse>(`SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE ${searchingBy} = $1 AND state = $2`,
+                [idOrGmail, !allowDeleted]);
             
             client.release();
             
@@ -103,6 +111,8 @@ export default class User {
                 connection.connect()
             ]);
 
+            if (!user) return
+
             const res = await connection.query('UPDATE users SET name = $1, gmail = $2, password = $3 WHERE id = $4 AND state = true', [
                 data.name ?? user.name,
                 data.gmail ?? user.gmail,
@@ -117,5 +127,11 @@ export default class User {
             console.log(error);
             throw new Error('Something went wrong when trying to update the user');
         }
+    }
+
+    public static async verifyPassword(userId: number, password: string) {
+    
+        return await bcrypt.compare(password, (await this.getPassword(userId)).password);
+
     }
 }
