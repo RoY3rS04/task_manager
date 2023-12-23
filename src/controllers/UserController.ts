@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/User.js";
 import { UserResponse } from "../@types/UserInfo.js";
+import { generateJWT } from "../helpers/generateJWT.js";
+import sendMail from "../helpers/verifyEmail.js";
 
 const getUsers = async (req: Request, res: Response) => {
     
@@ -71,9 +73,17 @@ const createUser = async (req: Request, res: Response) => {
             password
         });
 
+        const token = generateJWT((<UserResponse>user).id);
+
+        await sendMail({
+            name,
+            gmail,
+            token
+        });
+
         res.json({
             ok: true,
-            user
+            msg: 'An email with further instructions has been sent to your email, please go check it'
         })
 
     } catch (error) {

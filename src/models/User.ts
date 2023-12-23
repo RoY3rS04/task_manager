@@ -37,14 +37,14 @@ export default class User {
 
             client.release();
 
-            return await this.getOne(res.rows[0].id);
+            return await this.getOne(res.rows[0].id, true);
         } catch (error) {
             console.log(error);
             throw new Error('Something went wrong when trying to save the user');
         }
     }
 
-    public static async getOne(idOrGmail: number|string, allowDeleted: boolean = false): Promise<UserResponse | undefined> {
+    public static async getOne(idOrGmail: number|string, allowFalseState: boolean = false): Promise<UserResponse | undefined> {
 
         try {
 
@@ -59,7 +59,7 @@ export default class User {
             }
 
             const res = await connection.query<UserResponse>(`SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE ${searchingBy} = $1 AND state = $2`,
-                [idOrGmail, !allowDeleted]);
+                [idOrGmail, !allowFalseState]);
             
             client.release();
             
@@ -89,11 +89,8 @@ export default class User {
     public static async deleteOne(id: number) {
 
         try {
-            const client = await connection.connect();
-
-            const res = await connection.query('UPDATE users SET state = false WHERE id = $1', [id]);
-
-            client.release();
+            
+            await this.setState(id, false);
 
             return await this.getOne(id, true);
         } catch (error) {
@@ -132,6 +129,22 @@ export default class User {
     public static async verifyPassword(userId: number, password: string) {
     
         return await bcrypt.compare(password, (await this.getPassword(userId)).password);
+
+    }
+
+    public static async setState(id: number, state: boolean) {
+        
+        try {
+            
+            const client = await connection.connect();
+
+            const res = await connection.query(`UPDATE users SET state = ${state} WHERE id = $1`, [id]);
+
+            client.release();
+
+        } catch (error) {
+            throw new Error("Something went wrong when setting state");
+        }
 
     }
 }

@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import { generateJWT } from "../helpers/generateJWT";
+import { validateJWT } from "../middlewares/validateJWT";
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const authenticateUser = async (req: Request, res: Response) => {
     
@@ -49,6 +51,46 @@ const authenticateUser = async (req: Request, res: Response) => {
 
 }
 
+const verifyAccount = async (req: Request, res: Response) => {
+
+    const { token } = req.params;
+
+    try {
+        
+        const result = jwt.verify(token, <string>process.env.JWT_SECRET);
+
+        const { userId } = <JwtPayload>result;
+
+        const user = await User.getOne(userId, true);
+
+        if (!user) {
+            return;
+        }
+
+        await User.setState(userId, true);
+
+        res.json({
+            ok: true,
+            msg: 'You have verified your account'
+        })
+
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.json({
+                ok: false,
+                msg: error
+            })
+        } 
+
+        res.json({
+            ok: false,
+            msg: String(error)
+        })
+    }
+
+}
+
 export {
-    authenticateUser
+    authenticateUser,
+    verifyAccount
 }

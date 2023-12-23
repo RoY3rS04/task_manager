@@ -18,3 +18,5 @@ export interface UserResponse {
     created_at: Date,
     updated_at: Date
 }
+
+export type GmailInfo = Pick<UserInfo, 'gmail' | 'name'> & { token: string };

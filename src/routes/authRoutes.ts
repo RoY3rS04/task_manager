@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { authenticateUser } from "../controllers/AuthController";
-import { validateJWT } from "../middlewares/validateJWT";
+import { authenticateUser, verifyAccount } from "../controllers/AuthController";
 
 const router = Router();
 
 router.post('/login', authenticateUser);
+router.get('/confirm/:token', verifyAccount);
 
 export default router;
