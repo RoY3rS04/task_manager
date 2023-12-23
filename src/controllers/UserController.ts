@@ -3,6 +3,9 @@ import User from "../models/User.js";
 import { UserResponse } from "../@types/UserInfo.js";
 import { generateJWT } from "../helpers/generateJWT.js";
 import sendMail from "../helpers/verifyEmail.js";
+import { UploadedFile } from "express-fileupload";
+import imageKit from "../helpers/imageKit.js";
+import fs from 'fs/promises';
 
 const getUsers = async (req: Request, res: Response) => {
     
@@ -65,12 +68,32 @@ const createUser = async (req: Request, res: Response) => {
 
     const { name, gmail, password } = req.body;
 
+    let imageUrl = '';
+    let tempFile = '';
+
+    if (req.files) {
+        tempFile = (<UploadedFile>req.files.image).tempFilePath;
+    }
+
+    if (tempFile) {
+
+        const file = await fs.readFile(tempFile);
+        
+        const {url, fileId} = await imageKit.upload({
+            file,
+            fileName: 'user_image'
+        });
+
+        imageUrl = `${url}*${fileId}`;
+    }
+
     try {
         
         const user = await User.create({
             name, 
             gmail,
-            password
+            password,
+            image_url: imageUrl ? imageUrl : undefined
         });
 
         const token = generateJWT((<UserResponse>user).id);
@@ -105,22 +128,50 @@ const createUser = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
 
     const { id } = <UserResponse>req.user;
-    const { name, gmail, password } = req.body;
+    const { name, password } = req.body;
+
+    let imageUrl = '';
+    let tempFile = '';
+
+    if (req.files) {
+        tempFile = (<UploadedFile>req.files.image).tempFilePath;
+    }
+
+    if (tempFile) {
+
+        const file = await fs.readFile(tempFile);
+        
+        const {url, fileId} = await imageKit.upload({
+            file,
+            fileName: 'user_image'
+        });
+
+        imageUrl = `${url}*${fileId}`;
+    }
 
     try {
-        
-        const user = await User.updateOne(Number(id), {
+
+        const user = <UserResponse>await User.getOne(id);
+
+        if (user.image_url.split('*').length > 1 && imageUrl) {
+            const [, id] = user.image_url.split('*');
+
+            await imageKit.deleteFile(id);
+        }
+
+        const updatedUser = await User.updateOne(Number(id), {
             name: name ? name : null,
-            gmail: gmail ? gmail : null,
-            password: password ? password : null
+            password: password ? password : null,
+            image_url: imageUrl ? imageUrl : undefined
         });
 
         res.json({
             ok: true,
-            user
+            user: updatedUser
         })
 
     } catch (error) {
+        console.log(error);
         if (error instanceof Error) {
             return res.json({
                 ok: false,

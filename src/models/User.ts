@@ -20,7 +20,7 @@ export default class User {
         }
     }
 
-    public static async create({ name, gmail, password }: UserInfo) {
+    public static async create({ name, gmail, password, image_url }: UserInfo) {
 
         try {
             const [hashed_pass, client] = await Promise.all(
@@ -31,8 +31,8 @@ export default class User {
             );
 
             const res  = await connection.query<Pick<UserResponse, 'id'>>(
-                `INSERT INTO users (name, gmail, password) VALUES ($1, $2, $3) RETURNING id`,
-                [name, gmail, hashed_pass]
+                `INSERT INTO users (name, gmail, password, image_url) VALUES ($1, $2, $3, $4) RETURNING id`,
+                [name, gmail, hashed_pass, image_url ? image_url : null]
             );
 
             client.release();
@@ -58,7 +58,7 @@ export default class User {
                 searchingBy = 'gmail';
             }
 
-            const res = await connection.query<UserResponse>(`SELECT id, name, gmail, state, created_at, updated_at FROM users WHERE ${searchingBy} = $1 AND state = $2`,
+            const res = await connection.query<UserResponse>(`SELECT id, name, gmail, state, image_url, created_at, updated_at FROM users WHERE ${searchingBy} = $1 AND state = $2`,
                 [idOrGmail, !allowFalseState]);
             
             client.release();
@@ -110,9 +110,9 @@ export default class User {
 
             if (!user) return
 
-            const res = await connection.query('UPDATE users SET name = $1, gmail = $2, password = $3 WHERE id = $4 AND state = true', [
+            const res = await connection.query('UPDATE users SET name = $1, image_url = $2, password = $3 WHERE id = $4 AND state = true', [
                 data.name ?? user.name,
-                data.gmail ?? user.gmail,
+                data.image_url ?? user.image_url,
                 data.password?.trim() ? await bcrypt.hash(data.password.trim(), 10) : password,
                 id
             ]);

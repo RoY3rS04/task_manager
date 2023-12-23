@@ -3,14 +3,14 @@ import connection from "../database/config.js";
 
 export default class TeamWork {
 
-    public static async create({name, created_by}: TeamInfo) {
+    public static async create({name, created_by, image_url}: TeamInfo) {
 
         try {
             
             const client = await connection.connect();
 
-            const res = await connection.query<Pick<TeamResponse, 'id'>>('INSERT INTO teams (name, created_by) VALUES ($1, $2) RETURNING id',
-                [name, created_by]
+            const res = await connection.query<Pick<TeamResponse, 'id'>>('INSERT INTO teams (name, created_by, image_url) VALUES ($1, $2, $3) RETURNING id',
+                [name, created_by, image_url ? image_url : null]
             );
 
             client.release();
@@ -69,15 +69,17 @@ export default class TeamWork {
 
     }
 
-    public static async updateOne(id: number, name: string): Promise<TeamResponse> {
+    public static async updateOne(id: number, data: Pick<TeamInfo, 'name' | 'image_url'>): Promise<TeamResponse> {
+
+        const { name, image_url } = data;
 
         try {
             
             const client = await connection.connect();
 
             const res = await connection.query(
-                'UPDATE teams SET name = $1, updated_at = $2 WHERE id = $3 AND state = true',
-                [name, new Date(), id]
+                'UPDATE teams SET name = $1, image_url = $2 ,updated_at = $3 WHERE id = $4 AND state = true',
+                [name, image_url ? image_url : null, new Date(), id]
             );
 
             client.release();

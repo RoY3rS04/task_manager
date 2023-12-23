@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import { generateJWT } from "../helpers/generateJWT";
-import { validateJWT } from "../middlewares/validateJWT";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const authenticateUser = async (req: Request, res: Response) => {

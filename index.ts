@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import fileUpload from 'express-fileupload';
 import userRoutes from './src/routes/userRoutes.js';
 import taskRoutes from './src/routes/taskRoutes.js';
 import teamRoutes from './src/routes/teamRoutes.js';
@@ -15,6 +16,11 @@ app.use(express.json());
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
 })
+
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/'
+}));
 
 app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);

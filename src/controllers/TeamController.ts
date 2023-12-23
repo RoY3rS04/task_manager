@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import TeamWork from "../models/TeamWork.js";
 import { TeamResponse, TeamUsersResponse } from "../@types/TeamInfo.js";
+import { UploadedFile } from "express-fileupload";
+import fs from 'fs/promises';
+import imageKit from "../helpers/imageKit.js";
 
 const getTeam = async (req: Request, res: Response) => {
 
@@ -69,11 +72,31 @@ const createTeam = async (req: Request, res: Response) => {
 
     const { name, created_by } = req.body;
 
+    let imageUrl = '';
+    let tempFile = '';
+
+    if (req.files) {
+        tempFile = (<UploadedFile>req.files.image).tempFilePath;
+    }
+
+    if (tempFile) {
+
+        const file = await fs.readFile(tempFile);
+        
+        const {url, fileId} = await imageKit.upload({
+            file,
+            fileName: 'team_image'
+        });
+
+        imageUrl = `${url}*${fileId}`;
+    }
+
     try {
 
         const team = await TeamWork.create({
             name,
-            created_by: Number(created_by)
+            created_by: Number(created_by),
+            image_url: imageUrl ? imageUrl : undefined
         })
 
 
@@ -101,16 +124,45 @@ const createTeam = async (req: Request, res: Response) => {
 const updateTeam = async (req: Request, res: Response) => {
 
     const { id } = req.params;
-
     const { name } = req.body;
+
+    let imageUrl = '';
+    let tempFile = '';
+
+    if (req.files) {
+        tempFile = (<UploadedFile>req.files.image).tempFilePath;
+    }
+
+    if (tempFile) {
+
+        const file = await fs.readFile(tempFile);
+        
+        const {url, fileId} = await imageKit.upload({
+            file,
+            fileName: 'user_image'
+        });
+
+        imageUrl = `${url}*${fileId}`;
+    }
 
     try {
 
-        const team = await TeamWork.updateOne(Number(id), name);
+        const team = <TeamResponse>await TeamWork.getOne(Number(id));
+
+        if (team.image_url.split('*').length > 1 && imageUrl) {
+            const [, id] = team.image_url.split('*');
+
+            await imageKit.deleteFile(id);
+        }
+
+        const updatedTeam = await TeamWork.updateOne(Number(id), {
+            name: name ? name : null,
+            image_url: imageUrl ? imageUrl : undefined
+        });
 
         res.json({
             ok: true,
-            team
+            team: updatedTeam
         })
 
     } catch (error) {
