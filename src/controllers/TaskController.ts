@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Task from "../models/Task.js";
 import { TaskInfo, TaskResponse, TaskUsersResponse } from "../@types/TaskInfo.js";
+import { UserResponse } from "../@types/UserInfo.js";
 
 const getTask = async (req: Request, res: Response) => {
 
@@ -14,7 +15,7 @@ const getTask = async (req: Request, res: Response) => {
         if (with_users) {
             task = await Task.getTaskUsers(Number(id));
         } else {
-            task = await Task.getOne(Number(id));
+            task = <TaskResponse>await Task.getOne(Number(id));
         }
 
         res.json({
@@ -67,7 +68,8 @@ const getTasks = async (req: Request, res: Response) => {
 
 const createTask = async (req: Request, res: Response) => {
 
-    const { title, description, created_by } = req.body;
+    const { title, description } = req.body;
+    const { id: created_by } = <UserResponse>req.user;
 
     try {
         
@@ -102,19 +104,28 @@ const createTask = async (req: Request, res: Response) => {
 const updateTask = async (req: Request, res: Response) => {
 
     const { id } = req.params;
-
+    const { id: created_by } = <UserResponse>req.user;
     const { title, description } = req.body;
 
     try {
+
+        const task = <TaskResponse>await Task.getOne(Number(id));
+
+        if (task.created_by !== created_by) {
+            return res.json({
+                ok: false,
+                msg: 'Just the task creator is able to modify it'
+            })
+        }
         
-        const task = await Task.updateOne(Number(id), {
+        const updatedTask = await Task.updateOne(Number(id), {
             title: title ? title : null,
             description: description ? description : null
         });
 
         res.json({
             ok: true,
-            task
+            task: updatedTask
         })
 
     } catch (error) {
@@ -136,14 +147,24 @@ const updateTask = async (req: Request, res: Response) => {
 const deleteTask = async (req: Request, res: Response) => {
 
     const { id } = req.params;
+    const { id: created_by } = <UserResponse>req.user;
 
     try {
+
+        const task = <TaskResponse>await Task.getOne(Number(id));
+
+        if (task.created_by !== created_by) {
+            return res.json({
+                ok: false,
+                msg: 'Just the task creator is able to delete it'
+            })
+        }
         
-        const task = await Task.deleteOne(Number(id));
+        const deletedTask = await Task.deleteOne(Number(id));
 
         res.json({
             ok: true,
-            task
+            task: deletedTask
         })
 
     } catch (error) {
@@ -165,8 +186,18 @@ const deleteTask = async (req: Request, res: Response) => {
 const assignUser = async (req: Request, res: Response) => {
 
     const { task_id, user_id } = req.body;
+    const { id: created_by } = <UserResponse>req.user;
 
     try {
+
+        const task = <TaskResponse>await Task.getOne(Number(task_id));
+
+        if (task.created_by !== created_by) {
+            return res.json({
+                ok: false,
+                msg: 'Just the task creator is able to assign users to it'
+            })
+        }
         
         await Task.assignUser(task_id, user_id);
 
@@ -194,8 +225,18 @@ const assignUser = async (req: Request, res: Response) => {
 const removeUser = async (req: Request, res: Response) => {
 
     const { taskId, userId } = req.params;
+    const { id: created_by } = <UserResponse>req.user;
 
     try {
+
+        const task = <TaskResponse>await Task.getOne(Number(taskId));
+
+        if (task.created_by !== created_by) {
+            return res.json({
+                ok: false,
+                msg: 'Just the task creator is able to remove users from it'
+            })
+        }
         
         await Task.removeUser(Number(taskId), Number(userId));
 

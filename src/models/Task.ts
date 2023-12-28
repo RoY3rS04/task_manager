@@ -23,7 +23,7 @@ export default class Task {
         
     }
 
-    public static async getOne(id: number, allowDeleted: boolean = false) {
+    public static async getOne(id: number, allowDeleted: boolean = false): Promise<TaskResponse | undefined> {
 
         try {
 
@@ -85,7 +85,7 @@ export default class Task {
 
     public static async updateOne(id: number, data: Partial<TaskInfo>) {
 
-        const task = await this.getOne(id);
+        const task = <TaskResponse>await this.getOne(id);
 
         try {
 
