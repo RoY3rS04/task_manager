@@ -4,6 +4,7 @@ import { TeamResponse, TeamUsersResponse } from "../@types/TeamInfo.js";
 import { UploadedFile } from "express-fileupload";
 import fs from 'fs/promises';
 import imageKit from "../helpers/imageKit.js";
+import { UserResponse } from "../@types/UserInfo.js";
 
 const getTeam = async (req: Request, res: Response) => {
 
@@ -70,7 +71,8 @@ const getTeams = async (req: Request, res: Response) => {
 
 const createTeam = async (req: Request, res: Response) => {
 
-    const { name, created_by } = req.body;
+    const { name } = req.body;
+    const { id: created_by } = <UserResponse>req.user;
 
     let imageUrl = '';
     let tempFile = '';
@@ -124,6 +126,7 @@ const createTeam = async (req: Request, res: Response) => {
 const updateTeam = async (req: Request, res: Response) => {
 
     const { id } = req.params;
+    const { id: created_by } = <UserResponse>req.user;
     const { name } = req.body;
 
     let imageUrl = '';
@@ -131,6 +134,22 @@ const updateTeam = async (req: Request, res: Response) => {
 
     if (req.files) {
         tempFile = (<UploadedFile>req.files.image).tempFilePath;
+    }
+
+    try {
+        const task = await TeamWork.getOne(Number(id));
+
+        if (task.created_by !== created_by) {
+            return res.json({
+                ok: false,
+                msg: 'You are not authorized to do this action'
+            })
+        }
+    } catch (error) {
+        return res.json({
+            ok: false,
+            msg: 'Something went wrong'
+        })
     }
 
     if (tempFile) {
@@ -184,14 +203,24 @@ const updateTeam = async (req: Request, res: Response) => {
 const deleteTeam = async (req: Request, res: Response) => {
 
     const { id } = req.params;
+    const { id: created_by } = <UserResponse>req.user;
 
     try {
 
-        const team = await TeamWork.deleteOne(Number(id));
+        const team = await TeamWork.getOne(Number(id));
+
+        if (team.created_by !== created_by) {
+            return res.json({
+                ok: false,
+                msg: 'You are not authorized to do this action'
+            })
+        }
+
+        const deletedTeam = await TeamWork.deleteOne(Number(id));
 
         res.json({
             ok: true,
-            team
+            team: deletedTeam
         })
 
     } catch (error) {
@@ -213,9 +242,19 @@ const deleteTeam = async (req: Request, res: Response) => {
 const joinUser = async (req: Request, res: Response) => {
 
     const { team_id, user_id } = req.body;
+    const { id: created_by } = <UserResponse>req.user;
 
     try {
         
+        const team = await TeamWork.getOne(Number(team_id));
+
+        if (team.created_by !== created_by) {
+            return res.json({
+                ok: false,
+                msg: 'You are not authorized to do this'
+            })
+        }
+
         await TeamWork.joinUser(team_id, user_id);
 
         res.json({
@@ -242,9 +281,19 @@ const joinUser = async (req: Request, res: Response) => {
 const removeUser = async (req: Request, res: Response) => {
 
     const { teamId, userId } = req.params;
+    const { id: created_by } = <UserResponse>req.user;
 
     try {
         
+        const team = await TeamWork.getOne(Number(teamId));
+
+        if (team.created_by !== created_by) {
+            return res.json({
+                ok: false,
+                msg: 'You are not authorized to do this'
+            })
+        }
+
         await TeamWork.removeUser(Number(teamId), Number(userId));
 
         res.json({
