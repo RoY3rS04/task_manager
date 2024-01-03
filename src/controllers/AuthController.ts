@@ -63,7 +63,10 @@ const verifyAccount = async (req: Request, res: Response) => {
         const user = await User.getOne(userId, true);
 
         if (!user) {
-            return;
+            return res.json({
+                ok: false,
+                msg: 'The user does\'nt exists'
+            });
         }
 
         await User.setState(userId, true);

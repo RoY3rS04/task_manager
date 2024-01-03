@@ -1,13 +1,33 @@
 import { createUser, deleteUser, getUser, getUsers, updateUser } from "../controllers/UserController.js";
 import { Router } from "express";
 import { validateJWT } from "../middlewares/validateJWT.js";
+import { check, body } from "express-validator";
+import validateFields from "../middlewares/validateFields.js";
+import validateRecord from "../helpers/dbValidator.js";
 
 const router = Router();
 
 router.get('/', getUsers);
-router.get('/:id', getUser);
-router.post('/', createUser);
-router.patch('/', [validateJWT], updateUser);
+
+router.get('/:id', [
+    check('id', 'The id param must be an integer').isInt(),
+    check('id').custom((v) => validateRecord('users', v)),
+    validateFields
+], getUser);
+
+router.post('/', [
+    check('name', 'The name field is required').trim().notEmpty(),
+    check('gmail', 'The gmail field is required').trim().notEmpty().isEmail(),
+    check('password', 'You must provide a password').trim().notEmpty(),
+    validateFields
+], createUser);
+
+router.patch('/', [
+    validateJWT,
+    body('name').trim(),
+    body('password').trim()
+], updateUser);
+
 router.delete('/', [validateJWT], deleteUser);
 
 export default router;

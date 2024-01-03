@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/User.js";
-import { UserResponse } from "../@types/UserInfo.js";
+import { UserInfo, UserResponse } from "../@types/UserInfo.js";
 import { generateJWT } from "../helpers/generateJWT.js";
 import sendMail from "../helpers/verifyEmail.js";
 import { UploadedFile } from "express-fileupload";
@@ -40,6 +40,13 @@ const getUser = async (req: Request, res: Response) => {
     try {
         
         const user = await User.getOne(Number(id));
+
+        if (!user) {
+            return res.json({
+                ok: false,
+                msg: 'The user is deleted or doesn\'t exists'
+            })
+        }
 
         res.json({
             ok: true,
@@ -129,6 +136,13 @@ const updateUser = async (req: Request, res: Response) => {
 
     const { id } = <UserResponse>req.user;
     const { name, password } = req.body;
+
+    if (!name && !password) {
+        return res.json({
+            ok: false,
+            msg: 'You must provide info to update your profile'
+        })
+    }
 
     let imageUrl = '';
     let tempFile = '';

@@ -107,6 +107,13 @@ const updateTask = async (req: Request, res: Response) => {
     const { id: created_by } = <UserResponse>req.user;
     const { title, description } = req.body;
 
+    if (!title && !description) {
+        return res.json({
+            ok: false,
+            msg: 'You must provide info to update the task'
+        })
+    }
+
     try {
 
         const task = <TaskResponse>await Task.getOne(Number(id));
