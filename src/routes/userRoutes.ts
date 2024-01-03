@@ -8,6 +8,6 @@ router.get('/', getUsers);
 router.get('/:id', getUser);
 router.post('/', createUser);
 router.patch('/', [validateJWT], updateUser);
-router.delete('/:id', deleteUser);
+router.delete('/', [validateJWT], deleteUser);
 
 export default router;

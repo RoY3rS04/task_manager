@@ -188,12 +188,12 @@ const updateUser = async (req: Request, res: Response) => {
 }
 
 const deleteUser = async (req: Request, res: Response) => {
-    
-    const { id } = req.params;
+
+    const { id } = <UserResponse>req.user;
 
     try {
         
-        const user = await User.deleteOne(Number(id));
+        const user = await User.deleteOne(id);
 
         res.json({
             ok: true,
