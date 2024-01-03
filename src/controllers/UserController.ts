@@ -73,7 +73,7 @@ const getUser = async (req: Request, res: Response) => {
 
 const createUser = async (req: Request, res: Response) => {
 
-    const { name, gmail, password } = req.body;
+    const { name, email, password } = req.body;
 
     let imageUrl = '';
     let tempFile = '';
@@ -98,16 +98,16 @@ const createUser = async (req: Request, res: Response) => {
         
         const user = await User.create({
             name, 
-            gmail,
+            email,
             password,
-            image_url: imageUrl ? imageUrl : undefined
+            image_url: imageUrl ? imageUrl : 'https://ik.imagekit.io/4ztt7kzzm/default_user_image.png?updatedAt=1698091515542'
         });
 
         const token = generateJWT((<UserResponse>user).id);
 
         await sendMail({
             name,
-            gmail,
+            email,
             token
         });
 

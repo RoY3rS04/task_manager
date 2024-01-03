@@ -17,7 +17,7 @@ router.get('/:id', [
 
 router.post('/', [
     check('name', 'The name field is required').trim().notEmpty(),
-    check('gmail', 'The gmail field is required').trim().notEmpty().isEmail(),
+    check('email', 'The gmail field is required').trim().notEmpty().isEmail(),
     check('password', 'You must provide a password').trim().notEmpty(),
     validateFields
 ], createUser);

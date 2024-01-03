@@ -2,7 +2,7 @@ import { Request } from "express"
 
 export interface UserInfo {
     name: string,
-    gmail: string,
+    email: string,
     image_url?: string,
     password: string
 }
@@ -21,4 +21,4 @@ export interface UserResponse {
     updated_at: Date
 }
 
-export type GmailInfo = Pick<UserInfo, 'gmail' | 'name'> & { token: string };
+export type GmailInfo = Pick<UserInfo, 'email' | 'name'> & { token: string };

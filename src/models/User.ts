@@ -20,7 +20,7 @@ export default class User {
         }
     }
 
-    public static async create({ name, gmail, password, image_url }: UserInfo) {
+    public static async create({ name, email, password, image_url }: UserInfo) {
 
         try {
             const [hashed_pass, client] = await Promise.all(
@@ -32,7 +32,7 @@ export default class User {
 
             const res  = await connection.query<Pick<UserResponse, 'id'>>(
                 `INSERT INTO users (name, gmail, password, image_url) VALUES ($1, $2, $3, $4) RETURNING id`,
-                [name, gmail, hashed_pass, image_url ? image_url : null]
+                [name, email, hashed_pass, image_url ? image_url : null]
             );
 
             client.release();

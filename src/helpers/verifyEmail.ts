@@ -13,11 +13,11 @@ async function sendMail(data: GmailInfo) {
         }
     });
 
-    const {name, gmail, token} = data;
+    const {name, email, token} = data;
 
     const info = await transport.sendMail({
         from: 'Task Manager - <taskManage@gmail.com>',
-        to: gmail,
+        to: email,
         subject: 'Verify your account on Task Manager',
         text: 'Verify your account on Task Manager',
         html: `

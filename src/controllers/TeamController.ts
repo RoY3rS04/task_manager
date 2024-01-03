@@ -98,7 +98,7 @@ const createTeam = async (req: Request, res: Response) => {
         const team = await TeamWork.create({
             name,
             created_by: Number(created_by),
-            image_url: imageUrl ? imageUrl : undefined
+            image_url: imageUrl ? imageUrl : 'https://ik.imagekit.io/4ztt7kzzm/default_group_image.png?updatedAt=1699391215031'
         })
 
 

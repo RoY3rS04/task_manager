@@ -5,11 +5,11 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const authenticateUser = async (req: Request, res: Response) => {
     
-    const { gmail, password } = req.body;
+    const { email, password } = req.body;
 
     try {
 
-        const user = await User.getOne(gmail);
+        const user = await User.getOne(email);
 
         if (!user) {
             return res.json({
@@ -69,6 +69,13 @@ const verifyAccount = async (req: Request, res: Response) => {
             });
         }
 
+        if (user.state) {
+            return res.json({
+                ok: true,
+                msg: 'Your account was already verified'
+            })
+        }
+
         await User.setState(userId, true);
 
         res.json({
@@ -77,6 +84,8 @@ const verifyAccount = async (req: Request, res: Response) => {
         })
 
     } catch (error) {
+        console.log(error);
+
         if (error instanceof Error) {
             return res.json({
                 ok: false,
