@@ -115,7 +115,8 @@ const getAuthUser = (req: Request, res: Response) => {
 
     res.json({
         ok: true,
-        user
+        user,
+        msg: 'Verification completed'
     })
 }
 

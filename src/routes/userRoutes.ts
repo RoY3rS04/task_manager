@@ -25,7 +25,8 @@ router.post('/', [
 router.patch('/', [
     validateJWT,
     body('name').trim(),
-    body('password').trim()
+    body('password').trim(),
+    body('new_password').trim()
 ], updateUser);
 
 router.delete('/', [validateJWT], deleteUser);

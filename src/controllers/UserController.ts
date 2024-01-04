@@ -135,12 +135,19 @@ const createUser = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
 
     const { id } = <UserResponse>req.user;
-    const { name, password } = req.body;
+    const { name, password, new_password } = req.body;
 
-    if (!name && !password) {
+    if (!name && !new_password) {
         return res.json({
             ok: false,
             msg: 'You must provide info to update your profile'
+        })
+    }
+
+    if (!await User.verifyPassword(id, password)) {
+        return res.json({
+            ok: false,
+            msg: 'The password you provided is incorrect'
         })
     }
 
@@ -175,13 +182,14 @@ const updateUser = async (req: Request, res: Response) => {
 
         const updatedUser = await User.updateOne(Number(id), {
             name: name ? name : null,
-            password: password ? password : null,
+            password: new_password ? new_password : null,
             image_url: imageUrl ? imageUrl : undefined
         });
 
         res.json({
             ok: true,
-            user: updatedUser
+            user: updatedUser,
+            msg: 'User updated correctly'
         })
 
     } catch (error) {
