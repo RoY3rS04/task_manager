@@ -58,8 +58,8 @@ export default class User {
                 searchingBy = 'gmail';
             }
 
-            const res = await connection.query<UserResponse>(`SELECT id, name, gmail, state, image_url, created_at, updated_at FROM users WHERE ${searchingBy} = $1 AND state = $2`,
-                [idOrGmail, !allowFalseState]);
+            const res = await connection.query<UserResponse>(`SELECT id, name, gmail, state, image_url, created_at, updated_at FROM users WHERE ${searchingBy} = $1 AND state = true ${allowFalseState ? 'OR state = false' : ''}`,
+                [idOrGmail]);
             
             client.release();
             

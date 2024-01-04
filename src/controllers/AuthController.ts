@@ -14,7 +14,7 @@ const authenticateUser = async (req: Request, res: Response) => {
         if (!user) {
             return res.json({
                 ok: false,
-                msg: 'There\'s no user with those credentials'
+                msg: 'There\'s no user with those credentials or is unverified'
             })
         }
         
@@ -29,7 +29,8 @@ const authenticateUser = async (req: Request, res: Response) => {
 
         res.json({
             ok: true,
-            token: generateJWT(user.id)
+            token: generateJWT(user.id),
+            msg: 'User verified correctly'
         })
 
     } catch (error) {
