@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { authenticateUser, verifyAccount } from "../controllers/AuthController";
+import { authenticateUser, getAuthUser, verifyAccount } from "../controllers/AuthController";
 import { check } from "express-validator";
 import validateFields from "../middlewares/validateFields";
+import { validateJWT } from "../middlewares/validateJWT";
 
 const router = Router();
 
@@ -12,5 +13,7 @@ router.post('/login', [
 ], authenticateUser);
 
 router.get('/confirm/:token', verifyAccount);
+
+router.get('/self', validateJWT, getAuthUser);
 
 export default router;

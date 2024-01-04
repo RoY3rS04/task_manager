@@ -102,7 +102,25 @@ const verifyAccount = async (req: Request, res: Response) => {
 
 }
 
+const getAuthUser = (req: Request, res: Response) => {
+
+    const { user } = req;
+
+    if (!user) {
+        return res.json({
+            ok: false,
+            msg: 'You must login or register'
+        })
+    }
+
+    res.json({
+        ok: true,
+        user
+    })
+}
+
 export {
     authenticateUser,
-    verifyAccount
+    verifyAccount,
+    getAuthUser
 }
