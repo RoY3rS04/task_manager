@@ -21,20 +21,20 @@ const getTeam = async (req: Request, res: Response) => {
             team = await TeamWork.getOne(Number(id));
         }
  
-        res.json({
+        res.status(200).json({
             ok: true,
             team
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         }
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -48,20 +48,20 @@ const getTeams = async (req: Request, res: Response) => {
 
         const teams = await TeamWork.getAll();
 
-        res.json({
+        res.status(200).json({
             ok: true,
             teams
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         }
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -102,20 +102,21 @@ const createTeam = async (req: Request, res: Response) => {
         })
 
 
-        res.json({
+        res.status(200).json({
             ok: true,
+            msg: 'Team created successfully',
             team
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         }
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -137,16 +138,16 @@ const updateTeam = async (req: Request, res: Response) => {
     }
 
     try {
-        const task = await TeamWork.getOne(Number(id));
+        const team = await TeamWork.getOne(Number(id));
 
-        if (task.created_by !== created_by) {
-            return res.json({
+        if (team.created_by !== created_by) {
+            return res.status(401).json({
                 ok: false,
                 msg: 'You are not authorized to do this action'
             })
         }
     } catch (error) {
-        return res.json({
+        return res.status(500).json({
             ok: false,
             msg: 'Something went wrong'
         })
@@ -179,20 +180,21 @@ const updateTeam = async (req: Request, res: Response) => {
             image_url: imageUrl ? imageUrl : undefined
         });
 
-        res.json({
+        res.status(200).json({
             ok: true,
+            msg: 'Team updated correctly',
             team: updatedTeam
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         }
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -210,7 +212,7 @@ const deleteTeam = async (req: Request, res: Response) => {
         const team = await TeamWork.getOne(Number(id));
 
         if (team.created_by !== created_by) {
-            return res.json({
+            return res.status(401).json({
                 ok: false,
                 msg: 'You are not authorized to do this action'
             })
@@ -218,20 +220,21 @@ const deleteTeam = async (req: Request, res: Response) => {
 
         const deletedTeam = await TeamWork.deleteOne(Number(id));
 
-        res.json({
+        res.status(200).json({
             ok: true,
+            msg: 'Team deleted correctly',
             team: deletedTeam
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         }
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -249,7 +252,7 @@ const joinUser = async (req: Request, res: Response) => {
         const team = await TeamWork.getOne(Number(team_id));
 
         if (team.created_by !== created_by) {
-            return res.json({
+            return res.status(401).json({
                 ok: false,
                 msg: 'You are not authorized to do this'
             })
@@ -257,20 +260,20 @@ const joinUser = async (req: Request, res: Response) => {
 
         await TeamWork.joinUser(team_id, user_id);
 
-        res.json({
+        res.status(200).json({
             ok: true,
             msg: 'User joined to team correctly'
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -288,7 +291,7 @@ const removeUser = async (req: Request, res: Response) => {
         const team = await TeamWork.getOne(Number(teamId));
 
         if (team.created_by !== created_by) {
-            return res.json({
+            return res.status(401).json({
                 ok: false,
                 msg: 'You are not authorized to do this'
             })
@@ -296,7 +299,7 @@ const removeUser = async (req: Request, res: Response) => {
 
         await TeamWork.removeUser(Number(teamId), Number(userId));
 
-        res.json({
+        res.status(200).json({
             ok: true,
             msg: 'User removed successfully from team'
         })
@@ -304,13 +307,13 @@ const removeUser = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error);
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })

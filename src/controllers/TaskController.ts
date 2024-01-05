@@ -25,13 +25,13 @@ const getTask = async (req: Request, res: Response) => {
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -82,18 +82,19 @@ const createTask = async (req: Request, res: Response) => {
 
         res.json({
             ok: true,
+            msg: 'Task created successfully',
             task
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -108,7 +109,7 @@ const updateTask = async (req: Request, res: Response) => {
     const { title, description } = req.body;
 
     if (!title && !description) {
-        return res.json({
+        return res.status(400).json({
             ok: false,
             msg: 'You must provide info to update the task'
         })
@@ -119,7 +120,7 @@ const updateTask = async (req: Request, res: Response) => {
         const task = <TaskResponse>await Task.getOne(Number(id));
 
         if (task.created_by !== created_by) {
-            return res.json({
+            return res.status(401).json({
                 ok: false,
                 msg: 'Just the task creator is able to modify it'
             })
@@ -132,18 +133,19 @@ const updateTask = async (req: Request, res: Response) => {
 
         res.json({
             ok: true,
+            msg: 'Task modified successfully',
             task: updatedTask
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -161,7 +163,7 @@ const deleteTask = async (req: Request, res: Response) => {
         const task = <TaskResponse>await Task.getOne(Number(id));
 
         if (task.created_by !== created_by) {
-            return res.json({
+            return res.status(401).json({
                 ok: false,
                 msg: 'Just the task creator is able to delete it'
             })
@@ -171,18 +173,19 @@ const deleteTask = async (req: Request, res: Response) => {
 
         res.json({
             ok: true,
+            msg: 'Task deleted successfully',
             task: deletedTask
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -200,7 +203,7 @@ const assignUser = async (req: Request, res: Response) => {
         const task = <TaskResponse>await Task.getOne(Number(task_id));
 
         if (task.created_by !== created_by) {
-            return res.json({
+            return res.status(401).json({
                 ok: false,
                 msg: 'Just the task creator is able to assign users to it'
             })
@@ -215,13 +218,13 @@ const assignUser = async (req: Request, res: Response) => {
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -239,7 +242,7 @@ const removeUser = async (req: Request, res: Response) => {
         const task = <TaskResponse>await Task.getOne(Number(taskId));
 
         if (task.created_by !== created_by) {
-            return res.json({
+            return res.status(401).json({
                 ok: false,
                 msg: 'Just the task creator is able to remove users from it'
             })
@@ -254,13 +257,13 @@ const removeUser = async (req: Request, res: Response) => {
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })

@@ -12,20 +12,20 @@ const getUsers = async (req: Request, res: Response) => {
     try {
         const users = await User.getAll();
 
-        res.json({
+        res.status(200).json({
             ok: true,
             users
         })
     } catch (error) {
 
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -42,13 +42,13 @@ const getUser = async (req: Request, res: Response) => {
         const user = await User.getOne(Number(id));
 
         if (!user) {
-            return res.json({
+            return res.status(404).json({
                 ok: false,
                 msg: 'The user is deleted or doesn\'t exists'
             })
         }
 
-        res.json({
+        res.status(200).json({
             ok: true,
             user
         })
@@ -56,13 +56,13 @@ const getUser = async (req: Request, res: Response) => {
     } catch (error) {
         
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -111,20 +111,20 @@ const createUser = async (req: Request, res: Response) => {
             token
         });
 
-        res.json({
+        res.status(200).json({
             ok: true,
             msg: 'An email with further instructions has been sent to your email, please go check it'
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -138,14 +138,14 @@ const updateUser = async (req: Request, res: Response) => {
     const { name, password, new_password } = req.body;
 
     if (!name && !new_password) {
-        return res.json({
+        return res.status(400).json({
             ok: false,
             msg: 'You must provide info to update your profile'
         })
     }
 
     if (!await User.verifyPassword(id, password)) {
-        return res.json({
+        return res.status(400).json({
             ok: false,
             msg: 'The password you provided is incorrect'
         })
@@ -186,7 +186,7 @@ const updateUser = async (req: Request, res: Response) => {
             image_url: imageUrl ? imageUrl : undefined
         });
 
-        res.json({
+        res.status(200).json({
             ok: true,
             user: updatedUser,
             msg: 'User updated correctly'
@@ -195,13 +195,13 @@ const updateUser = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error);
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -212,25 +212,34 @@ const updateUser = async (req: Request, res: Response) => {
 const deleteUser = async (req: Request, res: Response) => {
 
     const { id } = <UserResponse>req.user;
+    const { password } = req.headers;
+
+    if (!await User.verifyPassword(id, <string>password)) {
+        return res.status(400).json({
+            ok: false,
+            msg: 'The password you provided is incorrect'
+        })
+    }
 
     try {
         
         const user = await User.deleteOne(id);
 
-        res.json({
+        res.status(200).json({
             ok: true,
+            msg: 'User deleted correctly',
             user
         })
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })

@@ -12,7 +12,7 @@ const authenticateUser = async (req: Request, res: Response) => {
         const user = await User.getOne(email);
 
         if (!user) {
-            return res.json({
+            return res.status(404).json({
                 ok: false,
                 msg: 'There\'s no user with those credentials or is unverified'
             })
@@ -20,7 +20,7 @@ const authenticateUser = async (req: Request, res: Response) => {
         
         if (!await User.verifyPassword(user.id, password)) {
 
-            return res.json({
+            return res.status(400).json({
                 ok: false,
                 msg: 'The password you provided isn\'t correct'
             })
@@ -36,13 +36,13 @@ const authenticateUser = async (req: Request, res: Response) => {
     } catch (error) {
         
        if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -64,7 +64,7 @@ const verifyAccount = async (req: Request, res: Response) => {
         const user = await User.getOne(userId, true);
 
         if (!user) {
-            return res.json({
+            return res.status(404).json({
                 ok: false,
                 msg: 'The user does\'nt exists'
             });
@@ -88,13 +88,13 @@ const verifyAccount = async (req: Request, res: Response) => {
         console.log(error);
 
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })
@@ -107,7 +107,7 @@ const getAuthUser = (req: Request, res: Response) => {
     const { user } = req;
 
     if (!user) {
-        return res.json({
+        return res.status(404).json({
             ok: false,
             msg: 'You must login or register'
         })
