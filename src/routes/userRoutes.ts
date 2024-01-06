@@ -1,4 +1,4 @@
-import { createUser, deleteUser, getUser, getUsers, updateUser } from "../controllers/UserController.js";
+import { createUser, deleteUser, getUser, getUserTeam, getUsers, updateUser } from "../controllers/UserController.js";
 import { Router } from "express";
 import { validateJWT } from "../middlewares/validateJWT.js";
 import { check, body } from "express-validator";
@@ -30,5 +30,7 @@ router.patch('/', [
 ], updateUser);
 
 router.delete('/', [validateJWT], deleteUser);
+
+router.get('/user/team', validateJWT, getUserTeam);
 
 export default router;

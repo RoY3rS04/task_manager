@@ -16,7 +16,7 @@ export interface TeamResponse {
     updated_at: Date,
 }
 
-export interface TeamUsersResponse extends TeamResponse {
+export interface TeamUsersResponse<T> extends TeamResponse {
     created_by: UserResponse,
-    members: UserResponse[] 
+    members: T
 }

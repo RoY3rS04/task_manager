@@ -1,5 +1,7 @@
+import { QueryResult } from "pg";
 import { TeamInfo, TeamResponse, TeamUsersResponse } from "../@types/TeamInfo.js";
 import connection from "../database/config.js";
+import { UserResponse } from "../@types/UserInfo.js";
 
 export default class TeamWork {
 
@@ -155,44 +157,59 @@ export default class TeamWork {
 
     }
 
-    public static async getTeamUsers(teamId: number) {
+    public static async getTeamUsers(teamId: number, populate: boolean = false) {
 
         try {
 
             const client = await connection.connect();
 
-            const res = await connection.query<TeamUsersResponse>(
-                `SELECT 
-                    a.id,
-                    a.name,
-                    a."state",
-                    a.created_at,
-                    a.updated_at,
-                    json_build_object(
-                        'id', b.id,
-                        'name', b.name,
-                        'gmail', b.gmail,
-                        'state', b."state",
-                        'created_at', b.created_at,
-                        'updated_at', b.updated_at
-                    ) as created_by,
-                    json_agg(json_build_object(
-                        'id', d.id,
-                        'name', d.name,
-                        'gmail', d.gmail,
-                        'state', d."state",
-                        'created_at', d.created_at,
-                        'updated_at', d.updated_at
-                    )) as users
-                FROM teams a 
-                INNER JOIN users b ON a.created_by = b.id
-                INNER JOIN user_team c ON c.team_id = a.id
-                INNER JOIN users d ON c.user_id = d.id
-                WHERE a.id = $1 AND a.state = true
-                GROUP BY a.id, b.id`,
-                [teamId]
-            );
+            let res:
+                QueryResult<TeamUsersResponse<number | UserResponse[]>>
+            ;
 
+            if (populate) {
+                res = await connection.query<TeamUsersResponse<UserResponse[]>>(
+                    `SELECT 
+                        a.id,
+                        a.name,
+                        a."state",
+                        a.created_at,
+                        a.updated_at,
+                        json_build_object(
+                            'id', b.id,
+                            'name', b.name,
+                            'gmail', b.gmail,
+                            'state', b."state",
+                            'created_at', b.created_at,
+                            'updated_at', b.updated_at
+                        ) as created_by,
+                        json_agg(json_build_object(
+                            'id', d.id,
+                            'name', d.name,
+                            'gmail', d.gmail,
+                            'state', d."state",
+                            'created_at', d.created_at,
+                            'updated_at', d.updated_at
+                        )) as members
+                    FROM teams a 
+                    INNER JOIN users b ON a.created_by = b.id
+                    INNER JOIN user_team c ON c.team_id = a.id
+                    INNER JOIN users d ON c.user_id = d.id
+                    WHERE a.id = $1 AND a.state = true
+                    GROUP BY a.id, b.id`,
+                    [teamId]
+                );
+            } else {
+                res = await connection.query<TeamUsersResponse<number>>(
+                    `SELECT a.*, COUNT(*) as members FROM teams a 
+                    INNER JOIN users b ON a.created_by = b.id
+                    INNER JOIN user_team c ON c.team_id = a.id
+                    INNER JOIN users d ON d.id = c.user_id
+                    WHERE a.id = $1
+                    GROUP BY a.id`,
+                    [teamId]
+                )
+            }
             client.release();
 
             return res.rows[0];

@@ -13,12 +13,12 @@ const getTeam = async (req: Request, res: Response) => {
 
     try {
 
-        let team: TeamResponse | TeamUsersResponse;
+        let team: TeamUsersResponse<number|UserResponse[]>;
         
         if (with_users) {
-            team = await TeamWork.getTeamUsers(Number(id));
+            team = await TeamWork.getTeamUsers(Number(id), true);
         } else {
-            team = await TeamWork.getOne(Number(id));
+            team = await TeamWork.getTeamUsers(Number(id));
         }
  
         res.status(200).json({

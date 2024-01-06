@@ -247,10 +247,39 @@ const deleteUser = async (req: Request, res: Response) => {
 
 }
 
+const getUserTeam = async (req: Request, res: Response) => {
+
+    const { id } = <UserResponse>req.user;
+
+    try {
+        
+        const team = await User.getUserTeam(id);
+
+        res.json({
+            ok: true,
+            team
+        })
+
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({
+                ok: false,
+                msg: error.message
+            })
+        } 
+
+        res.status(500).json({
+            ok: false,
+            msg: String(error)
+        })
+    }
+}
+
 export {
     getUsers,
     getUser,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    getUserTeam
 }

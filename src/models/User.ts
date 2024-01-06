@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt';
 import connection from '../database/config.js';
 import { Password, UserInfo, UserResponse } from '../@types/UserInfo.js';
+import { TeamResponse } from '../@types/TeamInfo.js';
+import TeamWork from './TeamWork.js';
 
 export default class User {
 
@@ -144,6 +146,26 @@ export default class User {
 
         } catch (error) {
             throw new Error("Something went wrong when setting state");
+        }
+
+    }
+
+    public static async getUserTeam(userId: number) {
+
+        try {
+            
+            const client = await connection.connect();
+
+            const res = await connection.query <Pick<TeamResponse, 'id'>>(
+                'SELECT a.id FROM teams a INNER JOIN user_team b ON a.id = b.team_id WHERE b.user_id = $1',
+                [userId]
+            );
+
+            client.release();
+
+            return TeamWork.getTeamUsers(res.rows[0].id);
+        } catch (error) {
+            throw new Error("Something went wrong when trying to get team");
         }
 
     }
