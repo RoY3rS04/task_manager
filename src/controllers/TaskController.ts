@@ -42,10 +42,13 @@ const getTask = async (req: Request, res: Response) => {
 const getTasks = async (req: Request, res: Response) => {
 
     const { id } = <UserResponse>req.user;
+    const { with_users } = req.headers;
 
     try {
         
-        const tasks = await Task.getAll(id);
+        const tasks = await Task.getAll(id, with_users ? true : false);
+
+        //console.log('controller', tasks);
 
         res.json({
             ok: true,

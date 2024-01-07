@@ -43,20 +43,37 @@ export default class Task {
         
     }
 
-    public static async getAll(userId: number) {
+    public static async getAll(userId: number, populate: boolean = false) {
 
         try {
 
             const client = await connection.connect();
 
             const res = await connection.query<TaskResponse>(
-                'SELECT * FROM tasks WHERE state = true AND created_by = $1',
+                `
+                    SELECT * FROM tasks WHERE state = true AND created_by = $1
+                    UNION
+                    SELECT a.* FROM tasks a
+                    INNER JOIN user_task b ON b.task_id = a.id
+                    WHERE b.user_id = $1 AND a."state" = true
+                `,
                 [userId]
             );
 
+            if (!populate) {
+                return res.rows;
+            }
+
             client.release();
 
-            return res.rows
+            let tasks: TaskUsersResponse[] = [];
+
+            //todo: Change this because it could take many resources
+            for (let task of res.rows) {
+                tasks.push(await this.getTaskUsers(task.id))
+            }
+
+            return tasks;
         } catch (error) {
             throw new Error('Something went wrong');
         }
@@ -160,7 +177,7 @@ export default class Task {
             const client = await connection.connect();
 
             const res = await connection.query<TaskUsersResponse>(
-                `SELECT 
+                `SELECT
                     a.id,
                     a.title,
                     a.description,
@@ -169,27 +186,47 @@ export default class Task {
                     a.updated_at,
                     a.completed_at,
                     json_build_object(
-                        'id', b.id,
-                        'name', b.name,
-                        'gmail', b.gmail,
-                        'state', b."state",
-                        'created_at', b.created_at,
-                        'updated_at', b.updated_at
+                        'id',
+                        b.id,
+                        'name',
+                        b.name,
+                        'gmail',
+                        b.gmail,
+                        'state',
+                        b."state",
+                        'created_at',
+                        b.created_at,
+                        'updated_at',
+                        b.updated_at
                     ) as created_by,
-                    json_agg(json_build_object(
-                        'id', d.id,
-                        'name', d.name,
-                        'gmail', d.gmail,
-                        'state', d."state",
-                        'created_at', d.created_at,
-                        'updated_at', d.updated_at
-                    )) as users
-                FROM tasks a 
-                INNER JOIN users b ON a.created_by = b.id
-                INNER JOIN user_task c ON c.task_id = a.id
-                INNER JOIN users d ON c.user_id = d.id
-                WHERE a.id = $1 AND a.state = true
-                GROUP BY a.id, b.id`,
+                    COALESCE(json_agg(
+                        json_build_object(
+                            'id',
+                            d.id,
+                            'name',
+                            d.name,
+                            'gmail',
+                            d.gmail,
+                            'state',
+                            d."state",
+                            'created_at',
+                            d.created_at,
+                            'updated_at',
+                            d.updated_at
+                        )
+                    ) FILTER(WHERE d.id IS NOT NULL),
+                    '[]'::JSON
+                    ) as users
+                FROM
+                    tasks a
+                    INNER JOIN users b ON a.created_by = b.id
+                    FULL OUTER JOIN user_task c ON c.task_id = a.id
+                    FULL OUTER JOIN users d ON c.user_id = d.id
+                WHERE
+                    a.id = $1
+                    AND a.state = true
+                GROUP BY
+                    a.id, b.id`,
                 [taskId]
             );
 
