@@ -41,9 +41,11 @@ const getTask = async (req: Request, res: Response) => {
 
 const getTasks = async (req: Request, res: Response) => {
 
+    const { id } = <UserResponse>req.user;
+
     try {
         
-        const tasks = await Task.getAll();
+        const tasks = await Task.getAll(id);
 
         res.json({
             ok: true,
@@ -52,13 +54,13 @@ const getTasks = async (req: Request, res: Response) => {
 
     } catch (error) {
         if (error instanceof Error) {
-            return res.json({
+            return res.status(500).json({
                 ok: false,
                 msg: error.message
             })
         } 
 
-        res.json({
+        res.status(500).json({
             ok: false,
             msg: String(error)
         })

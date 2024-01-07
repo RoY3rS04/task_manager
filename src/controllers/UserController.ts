@@ -250,10 +250,18 @@ const deleteUser = async (req: Request, res: Response) => {
 const getUserTeam = async (req: Request, res: Response) => {
 
     const { id } = <UserResponse>req.user;
+    const { with_users } = req.headers;
+
+    let team: Awaited<ReturnType<typeof User.getUserTeam>>
 
     try {
+
+        if (with_users) {
+            team = await User.getUserTeam(id, true);
+        } else {
+            team = await User.getUserTeam(id);
+        }
         
-        const team = await User.getUserTeam(id);
 
         res.json({
             ok: true,

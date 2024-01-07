@@ -12,6 +12,7 @@ router.get('/', getTeams);
 router.get('/:id', [
     check('id', 'The id param must be an integer').isInt(),
     check('id').custom((v) => validateRecord('teams', v)),
+    check('with_users', 'This field must be a boolean value').isBoolean(),
     validateFields
 ], getTeam);
 

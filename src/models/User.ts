@@ -150,7 +150,7 @@ export default class User {
 
     }
 
-    public static async getUserTeam(userId: number) {
+    public static async getUserTeam(userId: number, populate: boolean = false) {
 
         try {
             
@@ -162,6 +162,10 @@ export default class User {
             );
 
             client.release();
+
+            if (populate) {
+                return TeamWork.getTeamUsers(res.rows[0].id, true);
+            }
 
             return TeamWork.getTeamUsers(res.rows[0].id);
         } catch (error) {

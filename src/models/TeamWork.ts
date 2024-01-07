@@ -173,6 +173,7 @@ export default class TeamWork {
                         a.id,
                         a.name,
                         a."state",
+                        a.image_url,
                         a.created_at,
                         a.updated_at,
                         json_build_object(
@@ -180,6 +181,7 @@ export default class TeamWork {
                             'name', b.name,
                             'gmail', b.gmail,
                             'state', b."state",
+                            'image_url', b.image_url,
                             'created_at', b.created_at,
                             'updated_at', b.updated_at
                         ) as created_by,
@@ -188,13 +190,14 @@ export default class TeamWork {
                             'name', d.name,
                             'gmail', d.gmail,
                             'state', d."state",
+                            'image_url', d.image_url,
                             'created_at', d.created_at,
                             'updated_at', d.updated_at
                         )) as members
                     FROM teams a 
                     INNER JOIN users b ON a.created_by = b.id
                     INNER JOIN user_team c ON c.team_id = a.id
-                    INNER JOIN users d ON c.user_id = d.id
+                    INNER JOIN users d ON c.user_id = d.id 
                     WHERE a.id = $1 AND a.state = true
                     GROUP BY a.id, b.id`,
                     [teamId]

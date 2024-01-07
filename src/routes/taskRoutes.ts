@@ -7,7 +7,7 @@ import validateRecord from "../helpers/dbValidator";
 
 const router = Router();
 
-router.get('/', getTasks);
+router.get('/', validateJWT, getTasks);
 
 router.get('/:id', [
     check('id', 'The param must be an integer').isInt(),

@@ -43,14 +43,15 @@ export default class Task {
         
     }
 
-    public static async getAll() {
+    public static async getAll(userId: number) {
 
         try {
 
             const client = await connection.connect();
 
             const res = await connection.query<TaskResponse>(
-                'SELECT * FROM tasks WHERE state = true'
+                'SELECT * FROM tasks WHERE state = true AND created_by = $1',
+                [userId]
             );
 
             client.release();

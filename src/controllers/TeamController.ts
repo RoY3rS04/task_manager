@@ -9,7 +9,7 @@ import { UserResponse } from "../@types/UserInfo.js";
 const getTeam = async (req: Request, res: Response) => {
 
     const { id } = req.params;
-    const { with_users } = req.body;
+    const { with_users } = req.headers;
 
     try {
 
@@ -30,7 +30,7 @@ const getTeam = async (req: Request, res: Response) => {
         if (error instanceof Error) {
             return res.status(500).json({
                 ok: false,
-                msg: error.message
+                msg: error
             })
         }
 
