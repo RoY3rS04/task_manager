@@ -66,14 +66,15 @@ export default class Task {
 
             client.release();
 
-            let tasks: TaskUsersResponse[] = [];
+            /* let tasks: TaskUsersResponse[] = [];
 
             //todo: Change this because it could take many resources
             for (let task of res.rows) {
-                tasks.push(await this.getTaskUsers(task.id))
-            }
+                tasks.push((await this.getTasksUsers(task.id))[0])
+            } */
+            const taskIds = res.rows.map(task => task.id);
 
-            return tasks;
+            return await this.getTasksUsers(taskIds);
         } catch (error) {
             throw new Error('Something went wrong');
         }
@@ -170,7 +171,7 @@ export default class Task {
 
     }
 
-    public static async getTaskUsers(taskId: number) {
+    public static async getTasksUsers(taskIdOrIds: number|number[]) {
 
         try {
 
@@ -194,6 +195,8 @@ export default class Task {
                         b.gmail,
                         'state',
                         b."state",
+                        'image_url',
+                        b."image_url",
                         'created_at',
                         b.created_at,
                         'updated_at',
@@ -209,6 +212,8 @@ export default class Task {
                             d.gmail,
                             'state',
                             d."state",
+                            'image_url',
+                            d."image_url",
                             'created_at',
                             d.created_at,
                             'updated_at',
@@ -223,16 +228,15 @@ export default class Task {
                     FULL OUTER JOIN user_task c ON c.task_id = a.id
                     FULL OUTER JOIN users d ON c.user_id = d.id
                 WHERE
-                    a.id = $1
+                    a.id in (${taskIdOrIds})
                     AND a.state = true
                 GROUP BY
-                    a.id, b.id`,
-                [taskId]
+                    a.id, b.id`
             );
 
             client.release();
 
-            return res.rows[0];
+            return res.rows;
         } catch (error) {
             console.log(error);
             throw new Error('Something went wrong');

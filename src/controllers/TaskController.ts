@@ -10,10 +10,10 @@ const getTask = async (req: Request, res: Response) => {
 
     try {
         
-        let task: TaskResponse | TaskUsersResponse;
+        let task: TaskResponse | TaskUsersResponse[];
         
         if (with_users) {
-            task = await Task.getTaskUsers(Number(id));
+            task = await Task.getTasksUsers(Number(id));
         } else {
             task = <TaskResponse>await Task.getOne(Number(id));
         }
