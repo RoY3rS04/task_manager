@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { assignUser, createTask, deleteTask, getTask, getTasks, removeUser, updateTask } from "../controllers/TaskController";
+import { assignUser, completeTask, createTask, deleteTask, getTask, getTasks, removeUser, updateTask } from "../controllers/TaskController";
 import { validateJWT } from "../middlewares/validateJWT";
 import validateFields from "../middlewares/validateFields";
 import { body, check } from "express-validator";
@@ -29,14 +29,14 @@ router.patch('/:id', [
     body('title').trim(),
     body('description').trim(),
     validateFields
-], updateTask);
+], updateTask); //Done
 
 router.delete('/:id', [
     validateJWT,
     check('id', 'The param must be an integer').isInt(),
     check('id').custom((v) => validateRecord('tasks', v)),
     validateFields
-], deleteTask);
+], deleteTask); //Done
 
 router.post('/users', [
     validateJWT,
@@ -55,5 +55,12 @@ router.delete('/:taskId/users/:userId', [
     check('userId').custom((v) => validateRecord('users', v)),
     validateFields
 ], removeUser); //Done
+
+router.patch('/complete/:taskId', [
+    validateJWT,
+    check('taskId', 'The param must be of type int').isInt(),
+    check('completed', 'The field must be of type boolean').isBoolean(),
+    validateFields
+], completeTask); //Done
 
 export default router;

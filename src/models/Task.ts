@@ -243,4 +243,24 @@ export default class Task {
         }
 
     }
+
+    public static async completeOrNotTask(taskId: number, completed: boolean = true) {
+
+        try {
+            
+            const client = await connection.connect();
+
+            const res = await connection.query<TaskResponse>(
+                'UPDATE tasks SET completed_at = $1 WHERE id = $2',
+                [completed ? 'now()' : null, taskId]
+            )
+
+            client.release();
+
+            return await this.getOne(taskId);
+        } catch (error) {
+            throw new Error('Something went wrong');
+        }
+
+    }
 }

@@ -277,6 +277,41 @@ const removeUser = async (req: Request, res: Response) => {
 
 }
 
+const completeTask = async(req:Request, res: Response) => {
+
+    const user = <UserResponse>req.user;
+    const { completed } = req.body;
+
+    const { taskId } = req.params;
+
+    try {
+        
+        const task = await Task.getOne(Number(taskId));
+
+        if (task?.created_by !== user.id) {
+            return res.status(401).json({
+                ok: false,
+                msg: 'You are not authorized to do this action'
+            })
+        }
+
+        await Task.completeOrNotTask(Number(taskId), completed);
+
+        res.json({
+            ok: true,
+            msg: 'Task updated correctly'
+        })
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(500).json({
+                ok: false,
+                msg: 'Something went wrong'
+            })
+        }
+    }
+
+}
+
 export {
     getTask,
     getTasks,
@@ -284,5 +319,6 @@ export {
     updateTask,
     deleteTask,
     assignUser,
-    removeUser
+    removeUser,
+    completeTask
 }
