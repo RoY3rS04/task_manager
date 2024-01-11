@@ -20,6 +20,7 @@ const getTask = async (req: Request, res: Response) => {
 
         res.json({
             ok: true,
+            msg: 'Task found successfully',
             task
         })
 

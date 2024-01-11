@@ -10,10 +10,10 @@ router.post('/login', [
     check('email', 'You must provide your email').trim().notEmpty().isEmail(),
     check('password', 'You must provide your password').trim().notEmpty(),
     validateFields
-], authenticateUser);
+], authenticateUser); //Done
 
-router.get('/confirm/:token', verifyAccount);
+router.get('/confirm/:token', verifyAccount); //Done
 
-router.get('/self', validateJWT, getAuthUser);
+router.get('/self', validateJWT, getAuthUser); //Done
 
 export default router;

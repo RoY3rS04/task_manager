@@ -7,20 +7,20 @@ import validateRecord from "../helpers/dbValidator";
 
 const router = Router();
 
-router.get('/', validateJWT, getTasks);
+router.get('/', validateJWT, getTasks); //Done
 
 router.get('/:id', [
     check('id', 'The param must be an integer').isInt(),
     check('id').custom((v) => validateRecord('tasks', v)),
     validateFields
-], getTask);
+], getTask); //Done
 
 router.post('/', [
     validateJWT,
     check('title', 'You must provide a title').trim().notEmpty(),
     check('description', 'You must provide a description').trim().notEmpty(),
     validateFields
-], createTask);
+], createTask); //Done
 
 router.patch('/:id', [
     validateJWT,
@@ -45,7 +45,7 @@ router.post('/users', [
     check('user_id', 'The field must be an integer').isInt(),
     check('user_id').custom((v) => validateRecord('users', v)),
     validateFields
-], assignUser);
+], assignUser); //Done
 
 router.delete('/:taskId/users/:userId', [
     validateJWT,
@@ -54,6 +54,6 @@ router.delete('/:taskId/users/:userId', [
     check('userId', 'The field must be an integer').isInt(),
     check('userId').custom((v) => validateRecord('users', v)),
     validateFields
-], removeUser);
+], removeUser); //Done
 
 export default router;
