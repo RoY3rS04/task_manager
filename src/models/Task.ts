@@ -219,7 +219,7 @@ export default class Task {
                             'updated_at',
                             d.updated_at
                         )
-                    ) FILTER(WHERE d.id IS NOT NULL),
+                    ) FILTER(WHERE d.id IS NOT NULL AND d.state IS NOT FALSE),
                     '[]'::JSON
                     ) as users
                 FROM

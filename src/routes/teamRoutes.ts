@@ -12,15 +12,14 @@ router.get('/', getTeams);
 router.get('/:id', [
     check('id', 'The id param must be an integer').isInt(),
     check('id').custom((v) => validateRecord('teams', v)),
-    check('with_users', 'This field must be a boolean value').isBoolean(),
     validateFields
-], getTeam);
+], getTeam); //Done
 
 router.post('/', [
     validateJWT,
     check('name', 'You must provide a name to create the team').trim().notEmpty(),
     validateFields
-], createTeam);
+], createTeam); //Done
 
 router.patch('/:id', [
     validateJWT,
@@ -28,14 +27,14 @@ router.patch('/:id', [
     check('id').custom((v) => validateRecord('teams', v)),
     check('name', 'You must provide a name to update the team').trim().notEmpty(),
     validateFields
-], updateTeam);
+], updateTeam); //Done
 
 router.delete('/:id', [
     validateJWT,
     check('id', 'The id param must be an integer').isInt(),
     check('id').custom((v) => validateRecord('teams', v)),
     validateFields
-], deleteTeam);
+], deleteTeam); //Done
 
 router.post('/users', [
     validateJWT,

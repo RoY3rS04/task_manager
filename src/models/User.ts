@@ -157,7 +157,7 @@ export default class User {
             const client = await connection.connect();
 
             const res = await connection.query <Pick<TeamResponse, 'id'>>(
-                'SELECT a.id FROM teams a INNER JOIN user_team b ON a.id = b.team_id WHERE b.user_id = $1',
+                'SELECT a.id FROM teams a INNER JOIN user_team b ON a.id = b.team_id WHERE b.user_id = $1 AND a.state = true',
                 [userId]
             );
 
