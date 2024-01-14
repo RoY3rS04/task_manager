@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTeam, deleteTeam, getTeam, getTeams, joinUser, removeUser, updateTeam } from "../controllers/TeamController";
+import { createTeam, deleteTeam, generateInvitationLink, getTeam, getTeams, joinUser, removeUser, updateTeam } from "../controllers/TeamController";
 import { validateJWT } from "../middlewares/validateJWT";
 import { check } from "express-validator";
 import validateFields from "../middlewares/validateFields";
@@ -36,14 +36,9 @@ router.delete('/:id', [
     validateFields
 ], deleteTeam); //Done
 
-router.post('/users', [
-    validateJWT,
-    check('team_id', 'You must provide an integer for this field').isInt(),
-    check('team_id').custom((v) => validateRecord('teams', v)),
-    check('user_id', 'You must provide an integer for this field').isInt(),
-    check('user_id').custom((v) => validateRecord('users', v)),
-    validateFields
-], joinUser);
+router.post('/:token/users', [
+    validateJWT
+], joinUser); //Done
 
 router.delete('/:teamId/users/:userId', [
     validateJWT,
@@ -52,6 +47,13 @@ router.delete('/:teamId/users/:userId', [
     check('userId', 'The parameter must be and integer'),
     check('userId').custom((v) => validateRecord('users', v)),
     validateFields
-], removeUser);
+], removeUser); //Done
+
+router.get('/generate-link/:teamId', [
+    validateJWT,
+    check('teamId', 'The parameter must be and integer').isInt(),
+    check('teamId').custom((v) => validateRecord('teams', v)),
+    validateFields
+], generateInvitationLink); //Done
 
 export default router;

@@ -20,17 +20,17 @@ router.post('/', [
     check('email', 'The gmail field is required').trim().notEmpty().isEmail(),
     check('password', 'You must provide a password').trim().notEmpty(),
     validateFields
-], createUser);
+], createUser); //Done
 
 router.patch('/', [
     validateJWT,
     body('name').trim(),
     body('password').trim(),
     body('new_password').trim()
-], updateUser);
+], updateUser); //Done
 
-router.delete('/', [validateJWT], deleteUser);
+router.delete('/', [validateJWT], deleteUser); //Done
 
-router.get('/user/team', validateJWT, getUserTeam);
+router.get('/user/team', validateJWT, getUserTeam); //Done
 
 export default router;

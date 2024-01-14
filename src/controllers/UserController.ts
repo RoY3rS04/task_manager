@@ -103,6 +103,8 @@ const createUser = async (req: Request, res: Response) => {
             image_url: imageUrl ? imageUrl : 'https://ik.imagekit.io/4ztt7kzzm/default_user_image.png?updatedAt=1698091515542'
         });
 
+        console.log((<UserResponse>user).id);
+
         const token = generateJWT((<UserResponse>user).id);
 
         await sendMail({

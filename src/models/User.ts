@@ -41,7 +41,6 @@ export default class User {
 
             return await this.getOne(res.rows[0].id, true);
         } catch (error) {
-            console.log(error);
             throw new Error('Something went wrong when trying to save the user');
         }
     }
@@ -140,7 +139,7 @@ export default class User {
             
             const client = await connection.connect();
 
-            const res = await connection.query(`UPDATE users SET state = ${state} WHERE id = $1`, [id]);
+            const res = await connection.query(`UPDATE users SET state = $1 WHERE id = $2`, [state,id]);
 
             client.release();
 

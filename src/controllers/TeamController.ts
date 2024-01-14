@@ -5,6 +5,7 @@ import { UploadedFile } from "express-fileupload";
 import fs from 'fs/promises';
 import imageKit from "../helpers/imageKit.js";
 import { UserResponse } from "../@types/UserInfo.js";
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const getTeam = async (req: Request, res: Response) => {
 
@@ -244,27 +245,18 @@ const deleteTeam = async (req: Request, res: Response) => {
 
 const joinUser = async (req: Request, res: Response) => {
 
-    const { team_id, user_id } = req.body;
-    const { id: created_by } = <UserResponse>req.user;
+    const { token } = req.params;
+    const { id } = <UserResponse>req.user;
+
+    const { teamId } = <JwtPayload>jwt.verify(token, <string>process.env.JWT_SECRET);
 
     try {
-        
-        const team = await TeamWork.getOne(Number(team_id));
+        await TeamWork.joinUser(teamId, id);
 
-        if (team.created_by !== created_by) {
-            return res.status(401).json({
-                ok: false,
-                msg: 'You are not authorized to do this'
-            })
-        }
-
-        await TeamWork.joinUser(team_id, user_id);
-
-        res.status(200).json({
+        res.json({
             ok: true,
-            msg: 'User joined to team correctly'
+            msg: 'User joined to team successfully!'
         })
-
     } catch (error) {
         if (error instanceof Error) {
             return res.status(500).json({
@@ -278,19 +270,18 @@ const joinUser = async (req: Request, res: Response) => {
             msg: String(error)
         })
     }
-
 }
 
 const removeUser = async (req: Request, res: Response) => {
 
     const { teamId, userId } = req.params;
-    const { id: created_by } = <UserResponse>req.user;
+    const { id } = <UserResponse>req.user;
 
     try {
         
         const team = await TeamWork.getOne(Number(teamId));
 
-        if (team.created_by !== created_by) {
+        if (team.created_by !== id && Number(userId) !== id) {
             return res.status(401).json({
                 ok: false,
                 msg: 'You are not authorized to do this'
@@ -321,6 +312,40 @@ const removeUser = async (req: Request, res: Response) => {
 
 }
 
+const generateInvitationLink = async (req: Request, res: Response) => {
+    
+    const { teamId } = req.params;
+    const { id } = <UserResponse>req.user;
+
+    try {
+        const team = await TeamWork.getOne(Number(teamId));
+
+        if (team.created_by !== id) {
+            return res.status(401).json({
+                ok: false,
+                msg: 'You are not authorized to do this action'
+            })
+        }
+
+        const token = jwt.sign({
+            teamId
+        }, <string>process.env.JWT_SECRET, {
+            expiresIn: '30d'
+        })    
+
+        res.json({
+            ok: true,
+            msg: 'Link generated successfully and copied to clipboard!',
+            link: `${process.env.FRONTEND_URL}/teams/${token}`
+        })
+    } catch (error) {
+        res.json({
+            ok: false,
+            msg: 'Something went wrong'
+        })
+    }
+}
+
 export {
     getTeam,
     getTeams,
@@ -328,5 +353,6 @@ export {
     updateTeam,
     deleteTeam,
     joinUser,
-    removeUser
+    removeUser,
+    generateInvitationLink
 }

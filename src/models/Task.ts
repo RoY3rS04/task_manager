@@ -173,9 +173,21 @@ export default class Task {
 
     public static async getTasksUsers(taskIdOrIds: number|number[]) {
 
+        if (!taskIdOrIds) {
+            throw new Error("No tasks assigned yet");
+        }
+
         try {
 
             const client = await connection.connect();
+
+            let filter = '';
+
+            if (typeof taskIdOrIds === 'number') {
+                filter = `= ${taskIdOrIds}`;
+            } else {
+                filter = `in (${taskIdOrIds})`;
+            }
 
             const res = await connection.query<TaskUsersResponse>(
                 `SELECT
@@ -228,7 +240,7 @@ export default class Task {
                     FULL OUTER JOIN user_task c ON c.task_id = a.id
                     FULL OUTER JOIN users d ON c.user_id = d.id
                 WHERE
-                    a.id in (${taskIdOrIds})
+                    a.id ${filter}
                     AND a.state = true
                 GROUP BY
                     a.id, b.id`

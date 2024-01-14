@@ -63,6 +63,8 @@ const verifyAccount = async (req: Request, res: Response) => {
 
         const user = await User.getOne(userId, true);
 
+        console.log(userId);
+
         if (!user) {
             return res.status(404).json({
                 ok: false,
