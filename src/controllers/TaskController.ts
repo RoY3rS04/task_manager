@@ -295,11 +295,12 @@ const completeTask = async(req:Request, res: Response) => {
             })
         }
 
-        await Task.completeOrNotTask(Number(taskId), completed);
+        const completedTask = await Task.completeOrNotTask(Number(taskId), completed);
 
         res.json({
             ok: true,
-            msg: 'Task updated correctly'
+            msg: 'Task updated correctly',
+            task: completedTask
         })
     } catch (error) {
         if (error instanceof Error) {
